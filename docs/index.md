@@ -7,11 +7,11 @@ hero:
   tagline: 简单、强大、快速的 Wiki 站点
   actions:
     - theme: brand
-      text: 快速开始
-      link: guide/项目介绍
+      text: 开始阅读
+      link: start/项目介绍
     - theme: alt
-      text: 查看示例
-      link: /examples/markdown
+      text: 加入我们
+      link: start/加入我们
 
 features:
   - icon: ⚡
