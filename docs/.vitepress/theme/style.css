@@ -1,0 +1,10 @@
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+}
+
+.VPSidebarItem.level-1 > .item .text {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  opacity: 0.85;
+}
