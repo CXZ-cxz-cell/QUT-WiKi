@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: 开始阅读
-      link: start/项目介绍
+      link: start/preface/项目介绍
     - theme: alt
       text: 加入我们
-      link: start/加入我们
+      link: start/preface/加入我们
 
 features:
   - icon: ⚡️
