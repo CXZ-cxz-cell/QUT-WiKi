@@ -23,8 +23,8 @@ export default defineConfig({
         {
           text: '序言',
           items: [
-            { text: '项目介绍', link: '/guide/getting-started' },
-            { text: '参与开发', link: '/guide/configuration' }
+            { text: '项目介绍', link: '/guide/项目介绍' },
+            { text: '参与开发', link: '/guide/参与编写' }
           ]
         }
       ],
