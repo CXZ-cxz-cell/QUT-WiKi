@@ -6,6 +6,28 @@ export default defineConfig({
   description: '青岛理工大学 Wiki 知识库',
   lastUpdated: true,
   cleanUrls: true,
+  markdown: {
+    config: (md) => {
+      md.core.ruler.push('word_count', (state) => {
+        const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
+        const count = text.length
+        if (count === 0) return
+        const minutes = count < 150 ? '不到1分钟' : `约${Math.ceil(count / 350)}分钟`
+        const tokens = state.tokens
+        for (let i = 0; i < tokens.length; i++) {
+          if (tokens[i].type === 'heading_open' && tokens[i].tag === 'h1') {
+            const closeIdx = tokens.findIndex((t, j) => j > i && t.type === 'heading_close' && t.tag === 'h1')
+            if (closeIdx !== -1) {
+              const span = new state.Token('html_inline', '', 0)
+              span.content = `<span class="word-count">${count}字 / ${minutes}</span>`
+              tokens.splice(closeIdx, 0, span)
+            }
+            break
+          }
+        }
+      })
+    },
+  },
   head: [
     ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
     ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
