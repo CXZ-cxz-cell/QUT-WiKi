@@ -17,8 +17,10 @@ features:
   - icon: ⚡️
     title: 序言
     details: 项目介绍&加入我们
+    link: start/preface/项目介绍
   - icon: 📚
     title: 新生入学
     details: 帮助你快速融入校园生活
+    link: start/newstudent/学校建筑
 
 ---

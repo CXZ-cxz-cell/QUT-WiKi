@@ -78,7 +78,7 @@ export default defineConfig({
     ],
     footer: {
       message: '基于 VitePress 构建',
-      copyright: 'Copyright © 2026 QUTWiKi'
+      copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a>'
     },
     outline: { level: [2, 3], label: '本页导航' },
     docFooter: { prev: '上一篇', next: '下一篇' },
