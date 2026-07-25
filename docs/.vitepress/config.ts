@@ -6,6 +6,10 @@ export default defineConfig({
   description: '青岛理工大学 Wiki 知识库',
   lastUpdated: true,
   cleanUrls: true,
+  head: [
+    ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
+    ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
+  ],
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
