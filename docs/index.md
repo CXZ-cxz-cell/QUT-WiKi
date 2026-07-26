@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: 开始阅读
-      link: start/preface/项目介绍
+      link: start/preface/introduction
     - theme: alt
       text: 加入我们
-      link: start/preface/加入我们
+      link: start/preface/join-us
 
 features:
   - icon: ⚡️
@@ -21,6 +21,6 @@ features:
   - icon: 📚
     title: 新生入学
     details: 帮助你快速融入校园生活
-    link: start/newstudent/学校建筑
+    link: start/newstudent/campus-buildings
 
 ---
