@@ -34,6 +34,17 @@ body::before {
   margin-left: 12px;
 }
 
+.vp-doc strong {
+  font-weight: 700;
+  color: rgb(1, 93, 149);
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .main img {
   cursor: zoom-in;
 }
