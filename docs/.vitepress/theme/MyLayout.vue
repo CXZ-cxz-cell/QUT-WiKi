@@ -4,6 +4,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const visible = ref(false)
 const src = ref('')
+const alt = ref('')
 const scale = ref(1)
 const tx = ref(0)
 const ty = ref(0)
@@ -13,8 +14,9 @@ const lastY = ref(0)
 const anchorX = ref(0)
 const anchorY = ref(0)
 
-function open(s) {
+function open(s, a) {
   src.value = s
+  alt.value = a || ''
   visible.value = true
   scale.value = 1
   tx.value = 0
@@ -83,7 +85,7 @@ function onKeydown(e) {
 function onDocumentClick(e) {
   const target = e.target
   if (target instanceof HTMLImageElement && target.closest('.main')) {
-    open(target.currentSrc || target.src)
+    open(target.currentSrc || target.src, target.alt)
   }
 }
 
@@ -123,6 +125,7 @@ onUnmounted(() => {
           draggable="false"
         />
       </div>
+      <p v-if="alt" class="img-viewer-caption">{{ alt }}</p>
     </div>
   </Teleport>
 </template>
@@ -177,5 +180,18 @@ onUnmounted(() => {
   user-select: none;
   -webkit-user-drag: none;
   transition: transform 0.1s ease-out;
+}
+
+.img-viewer-caption {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  margin: 0;
+  max-width: 80vw;
+  text-align: center;
+  pointer-events: none;
 }
 </style>
