@@ -26,6 +26,8 @@ function countChineseChars(dir: string): number {
   return total
 }
 
+const totalK = (countChineseChars(docsRoot) / 1000).toFixed(1)
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'QUTWiKi',
@@ -33,20 +35,9 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   vite: {
-    plugins: [
-      {
-        name: 'virtual-wordcount',
-        resolveId(id: string) {
-          if (id === 'virtual:wordcount') return '\0' + id
-        },
-        load(id: string) {
-          if (id === '\0virtual:wordcount') {
-            const total = countChineseChars(docsRoot)
-            return `export default ${total}`
-          }
-        }
-      }
-    ]
+    define: {
+      __TOTAL_WORDS_K__: JSON.stringify(totalK)
+    }
   },
   markdown: {
     config: (md) => {

@@ -1,9 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import DefaultTheme from 'vitepress/theme'
-import totalWords from 'virtual:wordcount'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const displayWords = computed(() => (totalWords / 1000).toFixed(1))
+declare const __TOTAL_WORDS_K__: string
 
 const visible = ref(false)
 const src = ref('')
@@ -95,6 +94,15 @@ function onDocumentClick(e) {
 onMounted(() => {
   document.addEventListener('click', onDocumentClick)
   document.addEventListener('keydown', onKeydown)
+  const msg = document.querySelector('.VPFooter .message')
+  if (msg) {
+    msg.appendChild(document.createTextNode('  ·  全站共计 '))
+    const span = document.createElement('span')
+    span.style.color = 'rgb(1, 93, 149)'
+    span.textContent = `${__TOTAL_WORDS_K__}K`
+    msg.appendChild(span)
+    msg.appendChild(document.createTextNode(' 字'))
+  }
 })
 
 onUnmounted(() => {
@@ -105,11 +113,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DefaultTheme.Layout>
-    <template #layout-bottom>
-      <div class="site-wordcount">全站共计 {{ displayWords }}K</div>
-    </template>
-  </DefaultTheme.Layout>
+  <DefaultTheme.Layout />
   <Teleport to="body">
     <div v-if="visible" class="img-viewer-bg" @click="close">
       <button class="img-viewer-close" @click="close">&times;</button>
