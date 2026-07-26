@@ -26,6 +26,14 @@ export default defineConfig({
           }
         }
       })
+      const origImg = md.renderer.rules.image || ((tokens: any, idx: any, options: any, _env: any, self: any) => self.renderToken(tokens, idx, options))
+      md.renderer.rules.image = (tokens, idx, options, env, self) => {
+        const token = tokens[idx]
+        const alt = token.content || token.attrGet('alt') || ''
+        let html = origImg(tokens, idx, options, env, self)
+        if (alt) html += `<span class="img-caption">${alt}</span>`
+        return html
+      }
     },
   },
   head: [
@@ -58,7 +66,8 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '学校建筑', link: '/start/newstudent/campus-buildings' },
-            { text: '防骗防诈', link: '/start/newstudent/anti-fraud' }
+            { text: '防骗防诈', link: '/start/newstudent/anti-fraud' },
+            { text: '交通出行', link: '/start/newstudent/transportation' }
           ]
         },
       ],
