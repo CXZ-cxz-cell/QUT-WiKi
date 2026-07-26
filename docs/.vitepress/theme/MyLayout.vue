@@ -1,9 +1,7 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
-import { ref, onMounted, watch, nextTick, onUnmounted } from 'vue'
-import { useRoute } from 'vitepress'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const route = useRoute()
 const visible = ref(false)
 const src = ref('')
 const scale = ref(1)
@@ -82,21 +80,22 @@ function onKeydown(e) {
   if (e.key === 'Escape') close()
 }
 
-function bind() {
-  document.querySelectorAll('.main img').forEach(img => {
-    img.style.cursor = 'zoom-in'
-    img.addEventListener('click', () => open(img.src))
-  })
+function onDocumentClick(e) {
+  const target = e.target
+  if (target instanceof HTMLImageElement && target.closest('.main')) {
+    open(target.currentSrc || target.src)
+  }
 }
 
 onMounted(() => {
-  bind()
+  document.addEventListener('click', onDocumentClick)
   document.addEventListener('keydown', onKeydown)
-  watch(() => route.path, () => nextTick(() => bind()))
 })
 
 onUnmounted(() => {
+  document.removeEventListener('click', onDocumentClick)
   document.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
 })
 </script>
 
