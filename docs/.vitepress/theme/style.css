@@ -56,3 +56,10 @@ body::before {
   font-size: 16px;
   margin-top: 6px;
 }
+
+.site-wordcount {
+  text-align: center;
+  color: rgb(1, 93, 149);
+  font-size: 13px;
+  padding: 0 0 16px;
+}

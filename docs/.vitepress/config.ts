@@ -1,4 +1,30 @@
 import { defineConfig } from 'vitepress'
+import { readdirSync, readFileSync, statSync } from 'fs'
+import { resolve, extname, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const docsRoot = resolve(__dirname, '..')
+
+function countChineseChars(dir: string): number {
+  let total = 0
+  const entries = readdirSync(dir)
+  for (const entry of entries) {
+    const full = resolve(dir, entry)
+    const stat = statSync(full)
+    if (stat.isDirectory()) {
+      if (entry === 'node_modules' || entry === '.vitepress' || entry.startsWith('.')) continue
+      total += countChineseChars(full)
+    } else if (extname(entry) === '.md') {
+      try {
+        const content = readFileSync(full, 'utf-8')
+        const chinese = content.replace(/[^\u4e00-\u9fff]/g, '')
+        total += chinese.length
+      } catch {}
+    }
+  }
+  return total
+}
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -6,6 +32,22 @@ export default defineConfig({
   description: '青岛理工大学 Wiki 知识库',
   lastUpdated: true,
   cleanUrls: true,
+  vite: {
+    plugins: [
+      {
+        name: 'virtual-wordcount',
+        resolveId(id: string) {
+          if (id === 'virtual:wordcount') return '\0' + id
+        },
+        load(id: string) {
+          if (id === '\0virtual:wordcount') {
+            const total = countChineseChars(docsRoot)
+            return `export default ${total}`
+          }
+        }
+      }
+    ]
+  },
   markdown: {
     config: (md) => {
       md.core.ruler.push('word_count', (state) => {

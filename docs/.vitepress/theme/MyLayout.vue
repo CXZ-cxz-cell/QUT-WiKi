@@ -1,6 +1,9 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
-import { ref, onMounted, onUnmounted } from 'vue'
+import totalWords from 'virtual:wordcount'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+
+const displayWords = computed(() => (totalWords / 1000).toFixed(1))
 
 const visible = ref(false)
 const src = ref('')
@@ -102,7 +105,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DefaultTheme.Layout />
+  <DefaultTheme.Layout>
+    <template #layout-bottom>
+      <div class="site-wordcount">全站共计 {{ displayWords }}K</div>
+    </template>
+  </DefaultTheme.Layout>
   <Teleport to="body">
     <div v-if="visible" class="img-viewer-bg" @click="close">
       <button class="img-viewer-close" @click="close">&times;</button>
