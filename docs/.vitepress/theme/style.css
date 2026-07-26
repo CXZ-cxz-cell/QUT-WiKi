@@ -33,3 +33,7 @@ body::before {
   font-weight: 400;
   margin-left: 12px;
 }
+
+.main img {
+  cursor: zoom-in;
+}

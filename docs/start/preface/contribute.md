@@ -187,7 +187,37 @@ description: 一句话描述
 ---
 ```
 
-### 5. 导航与侧边栏
+### 5. 图片相册
+
+需要将多张图片按原始宽高比合并展示时，可以使用全局的 `Gallery` 组件：
+
+```md
+<Gallery>
+
+![教学楼](https://example.com/building.jpg)
+
+![实验楼](https://example.com/laboratory.jpg)
+
+![图书馆](https://example.com/library.jpg)
+
+</Gallery>
+```
+
+组件会根据图片尺寸和页面宽度自动分行，点击图片仍可使用站内的大图预览。可以通过 `row-height` 调整目标行高，通过 `gap` 调整图片间距，默认值分别为 `220` 和 `8`：
+
+```md
+<Gallery :row-height="180" :gap="6">
+
+![图片一](https://example.com/one.jpg)
+
+![图片二](https://example.com/two.jpg)
+
+</Gallery>
+```
+
+图片前后需要保留空行，否则 Markdown 不会将其解析为图片。
+
+### 6. 导航与侧边栏
 
 站点导航和侧边栏需在 `docs/.vitepress/config.ts` 的 `themeConfig` 中手动配置。添加新页面后需要同步更新配置中的 `nav` 和 `sidebar` 字段，具体请参考 [VitePress 文档](https://vitepress.dev/reference/default-theme-config)。
 
