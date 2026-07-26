@@ -74,7 +74,7 @@ export default defineConfig({
       {
         text: '更多',
         items: [
-          { text: '更新日志', link: '/changelog' }
+          { text: '更新日志', link: '/start/about/changelog' }
         ]
       }
     ],
@@ -85,8 +85,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '项目介绍', link: '/start/preface/introduction' },
-            { text: '加入我们', link: '/start/preface/join-us' },
-            { text: '参与编写', link: '/start/preface/contribute' }
+            
           ]
         },
         {
@@ -98,6 +97,16 @@ export default defineConfig({
             { text: '交通出行', link: '/start/newstudent/transportation' }
           ]
         },
+        {
+          text: '关于',
+          collapsed: false,
+          items: [
+            { text: '参与贡献', link: '/start/about/contribute' },
+            { text: '加入我们', link: '/start/about/join-us' },
+            { text: '更新日志', link: '/start/about/changelog' },
+            { text: '开发计划', link: '/start/about/todo' },
+          ]
+        }
       ],
       '/': [
         {
@@ -105,7 +114,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '首页', link: '/' },
-            { text: '更新日志', link: '/changelog' }
+            { text: '更新日志', link: '/start/about/changelog' }
           ]
         }
       ]
