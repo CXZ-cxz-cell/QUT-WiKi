@@ -38,7 +38,7 @@ export default defineConfig({
       {
         text: '更多',
         items: [
-          { text: '更新日志', link: '/更新日志' }
+          { text: '更新日志', link: '/changelog' }
         ]
       }
     ],
@@ -48,17 +48,17 @@ export default defineConfig({
           text: '序言',
           collapsed: false,
           items: [
-            { text: '项目介绍', link: '/start/preface/项目介绍' },
-            { text: '加入我们', link: '/start/preface/加入我们' },
-            { text: '参与编写', link: '/start/preface/参与编写' }
+            { text: '项目介绍', link: '/start/preface/introduction' },
+            { text: '加入我们', link: '/start/preface/join-us' },
+            { text: '参与编写', link: '/start/preface/contribute' }
           ]
         },
         {
           text: '新生入学',
           collapsed: false,
           items: [
-            { text: '学校建筑', link: '/start/newstudent/学校建筑' },
-            { text: '防骗防诈', link: '/start/newstudent/防骗防诈' }
+            { text: '学校建筑', link: '/start/newstudent/campus-buildings' },
+            { text: '防骗防诈', link: '/start/newstudent/anti-fraud' }
           ]
         },
       ],
@@ -68,7 +68,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '首页', link: '/' },
-            { text: '更新日志', link: '/更新日志' }
+            { text: '更新日志', link: '/changelog' }
           ]
         }
       ]
