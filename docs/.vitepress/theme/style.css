@@ -56,3 +56,7 @@ body::before {
   font-size: 16px;
   margin-top: 6px;
 }
+
+.VPFooter.has-sidebar {
+  display: block !important;
+}

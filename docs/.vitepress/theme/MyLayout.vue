@@ -1,8 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import DefaultTheme from 'vitepress/theme'
 import { ref, onMounted, onUnmounted } from 'vue'
-
-declare const __TOTAL_WORDS_K__: string
 
 const visible = ref(false)
 const src = ref('')
@@ -94,15 +92,6 @@ function onDocumentClick(e) {
 onMounted(() => {
   document.addEventListener('click', onDocumentClick)
   document.addEventListener('keydown', onKeydown)
-  const msg = document.querySelector('.VPFooter .message')
-  if (msg) {
-    msg.appendChild(document.createTextNode('  ·  全站共计 '))
-    const span = document.createElement('span')
-    span.style.color = 'rgb(1, 93, 149)'
-    span.textContent = `${__TOTAL_WORDS_K__}K`
-    msg.appendChild(span)
-    msg.appendChild(document.createTextNode(' 字'))
-  }
 })
 
 onUnmounted(() => {

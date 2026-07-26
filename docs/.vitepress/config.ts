@@ -34,11 +34,6 @@ export default defineConfig({
   description: '青岛理工大学 Wiki 知识库',
   lastUpdated: true,
   cleanUrls: true,
-  vite: {
-    define: {
-      __TOTAL_WORDS_K__: JSON.stringify(totalK)
-    }
-  },
   markdown: {
     config: (md) => {
       md.core.ruler.push('word_count', (state) => {
@@ -119,7 +114,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/LucasAndrew0120/QUT-WiKi' }
     ],
     footer: {
-      message: '基于 VitePress 构建',
+      message: `基于 VitePress 构建  ·  全站共计 <span style="color:rgb(1,93,149)">${totalK}K</span> 字`,
       copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a>'
     },
     outline: { level: [2, 3], label: '本页导航' },
