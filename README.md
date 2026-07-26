@@ -14,7 +14,7 @@ npm run build     # 构建生产版本
 
 ## 参与编写
 
-详见 [参与编写](https://qutwiki.pages.dev/start/参与编写) 页面，内容涵盖环境准备、文档规范、提交流程等完整指引。
+详见 [参与编写](https://qutwiki.lris625.top/start/preface/contribute) 页面，内容涵盖环境准备、文档规范、提交流程等完整指引。
 
 ## 项目结构
 
