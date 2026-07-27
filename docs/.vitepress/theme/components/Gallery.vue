@@ -90,10 +90,7 @@ function layout() {
     )
     // Leave one pixel for browser subpixel rounding so a full row never wraps.
     const availableWidth = width - (items.length - 1) * props.gap - 1
-    const isLastRow = index === rows.length - 1
-    const height = isLastRow
-      ? Math.min(props.rowHeight, availableWidth / totalRatio)
-      : availableWidth / totalRatio
+    const height = availableWidth / totalRatio
 
     items.forEach((item) => {
       const itemWidth = height * Number(item.element.dataset.galleryRatio)
@@ -163,7 +160,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   margin: 0 !important;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .qut-gallery > [data-gallery-item] > a,
