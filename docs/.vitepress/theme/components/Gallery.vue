@@ -17,14 +17,37 @@ let images: HTMLImageElement[] = []
 function getItems() {
   if (!root.value) return []
 
-  return Array.from(root.value.children).flatMap((item) => {
-    const element = item as HTMLElement
-    const image = element.matches('img')
-      ? element as HTMLImageElement
-      : element.querySelector('img')
+  const items: Array<{ element: HTMLElement; image: HTMLImageElement }> = []
 
-    return image ? [{ element, image }] : []
+  Array.from(root.value.children).forEach((item) => {
+    const element = item as HTMLElement
+
+    if (element.matches('img')) {
+      items.push({ element, image: element as HTMLImageElement })
+      return
+    }
+
+    const images = element.querySelectorAll('img')
+    if (images.length === 1) {
+      items.push({ element, image: images[0] as HTMLImageElement })
+    } else if (images.length > 1) {
+      images.forEach((img) => {
+        const wrapper = document.createElement('div')
+        wrapper.dataset.galleryItem = ''
+        const caption = img.nextElementSibling
+        const hasCaption = caption?.classList?.contains('img-caption')
+
+        root.value!.insertBefore(wrapper, element)
+        wrapper.appendChild(img)
+        if (hasCaption) wrapper.appendChild(caption)
+
+        items.push({ element: wrapper, image: img as HTMLImageElement })
+      })
+      element.remove()
+    }
   })
+
+  return items
 }
 
 function layout() {
