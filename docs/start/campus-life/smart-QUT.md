@@ -7,41 +7,37 @@
 ## 请销假流程
 
 - 打开微信，选择通讯录，点击**青岛理工大学**。
-
-![微信通讯录中的青岛理工大学入口](smart-QUT/weixin1.jpg)
-
 - 向下滑动，找到并进入**E.学生-智慧学工系统**。
-
-![微信中的智慧学工系统入口](smart-QUT/weixin2.jpg)
-
 - 选择**一站式社区建设平台**，向下滑动，找到并进入**请销假**。
-
-![智慧学工系统的一站式社区建设平台](smart-QUT/xuegong1.jpg)
-
-![一站式社区建设平台中的请销假入口](smart-QUT/xuegong2.jpg)
-
 - 按照要求填写相关信息。相关证明一般需要家长知情截图，具体要求请以辅导员通知为准。若上次请假尚未销假，则无法再次请假，请通过左上角菜单切换至销假页面完成销假。
 - 辅导员批准后，审批结果会显示在**请销假**页面中。
+
+<Gallery>
+
+![微信通讯录中的青岛理工大学入口](https://pic1.imgdb.cn/i/033wsumzpdLqjAPEhbIvsd.webp)
+![微信中的智慧学工系统入口](https://pic1.imgdb.cn/i/033wsuuF1MHDmeB9koI4zg.webp)
+![智慧学工系统的一站式社区建设平台](https://pic1.imgdb.cn/i/033wsuv46LcyawzERAy11K.webp)
+![一站式社区建设平台中的请销假入口](https://pic1.imgdb.cn/i/033wsuvaMlFdZGbNw1ofoA.webp)
+
+</Gallery>
 
 ## 离返校登记
 
 离返校登记一般在法定节假日前执行，具体请关注班级群内通知。
 
 - 打开微信，选择通讯录，点击**青岛理工大学**。
-
-![微信通讯录中的青岛理工大学入口](smart-QUT/weixin1.jpg)
-
 - 向下滑动，找到并进入**E.学生-智慧学工系统**。
-
-![微信中的智慧学工系统入口](smart-QUT/weixin2.jpg)
-
 - 选择**一站式社区建设平台**，向下滑动，找到并进入**离返校管理**。
-
-![智慧学工系统的一站式社区建设平台](smart-QUT/xuegong1.jpg)
-
-![一站式社区建设平台中的离返校管理入口](smart-QUT/xuegong3.jpg)
-
 - 根据要求和实际情况填写并提交即可。
+
+<Gallery>
+
+![微信通讯录中的青岛理工大学入口](https://pic1.imgdb.cn/i/033wsumzpdLqjAPEhbIvsd.webp)
+![微信中的智慧学工系统入口](https://pic1.imgdb.cn/i/033wsuuF1MHDmeB9koI4zg.webp)
+![智慧学工系统的一站式社区建设平台](https://pic1.imgdb.cn/i/033wsuv46LcyawzERAy11K.webp)
+![一站式社区建设平台中的离返校管理入口](https://pic1.imgdb.cn/i/033wsuwHkLltvIRvpk4A0d.webp)
+
+</Gallery>
 
 ## 其他功能
 
