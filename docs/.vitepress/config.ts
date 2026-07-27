@@ -106,7 +106,7 @@ export default defineConfig({
             { text: '参与贡献', link: '/start/about/contribute' },
             { text: '加入我们', link: '/start/about/join-us' },
             { text: '更新日志', link: '/start/about/changelog' },
-            { text: '开发计划', link: '/start/about/todo' },
+            { text: '开发&编写计划', link: '/start/about/todo' },
           ]
         }
       ],
