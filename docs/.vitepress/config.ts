@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { resolve, extname, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import taskLists from 'markdown-it-task-lists'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
@@ -36,6 +37,7 @@ export default defineConfig({
   cleanUrls: true,
   markdown: {
     config: (md) => {
+      md.use(taskLists)
       md.core.ruler.push('word_count', (state) => {
         const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
         const count = text.length
