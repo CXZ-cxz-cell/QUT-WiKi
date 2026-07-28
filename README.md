@@ -14,20 +14,55 @@ npm run build     # 构建生产版本
 
 ## 参与编写
 
-详见 [参与编写](https://qutwiki.lris625.top/start/preface/contribute) 页面，内容涵盖环境准备、文档规范、提交流程等完整指引。
+详见 [参与编写](https://wiki.quters.top/start/about/contribute) 页面，内容涵盖环境准备、文档规范、提交流程等完整指引。
 
 ## 项目结构
 
 ```
-docs/                  # 文档根目录
-├── index.md           # 首页
-├── 更新日志.md         # 更新日志
-├── .vitepress/        # VitePress 配置
-└── start/             # 所有内容目录
-    ├── 项目介绍.md
-    ├── 加入我们.md
-    ├── 参与编写.md
-    ├── newstudent/    # 新生入学
-    ├── examples/      # 示例
-    └── ...            # 更多按需扩展
+.
+├── .gitattributes              # GitHub Linguist 配置
+├── .gitignore
+├── build.ps1                   # Windows 本地开发启动脚本
+├── package.json
+├── README.md
+│
+└── docs/                       # VitePress 文档根目录
+    ├── index.md                # 首页
+    ├── public/
+    │   └── _redirects          # 静态重定向规则
+    │
+    ├── .vitepress/             # VitePress 配置与主题
+    │   ├── config.ts           # 站点配置
+    │   ├── contributors-mapping.json
+    │   ├── scripts/
+    │   │   └── gen-contributors.mjs   # 贡献者信息生成
+    │   └── theme/
+    │       ├── index.ts               # 主题入口
+    │       ├── MyLayout.vue           # 自定义布局
+    │       ├── style.css              # 自定义样式
+    │       └── components/
+    │           ├── Contributors.vue   # 贡献者组件
+    │           └── Gallery.vue        # 图片集组件
+    │
+    └── start/
+        ├── preface/
+        │   └── introduction.md       # 前言 / 项目介绍
+        ├── newstudent/               # 新生入学
+        │   ├── anti-fraud.md         # 防诈骗指南
+        │   ├── campus-buildings.md   # 校园建筑
+        │   ├── campus-card.md        # 校园卡
+        │   ├── campus-network.md     # 校园网
+        │   ├── military-assistant.md # 军训助手
+        │   └── transportation.md     # 交通出行
+        ├── campus-life/              # 校园生活
+        │   ├── academic-system.md    # 教务系统
+        │   ├── library-reservation.md# 图书馆预约
+        │   ├── smart-QUT.md          # 智慧学工系统
+        │   ├── tuition-fee.md        # 学费缴纳
+        │   └── utility-bill.md       # 水电费缴纳
+        └── about/                    # 关于 Wiki
+            ├── changelog.md          # 更新日志
+            ├── contribute.md         # 参与编写
+            ├── join-us.md            # 加入我们
+            └── todo.md               # 编写计划
 ```
