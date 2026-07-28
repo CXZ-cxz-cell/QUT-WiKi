@@ -17,14 +17,37 @@ let images: HTMLImageElement[] = []
 function getItems() {
   if (!root.value) return []
 
-  return Array.from(root.value.children).flatMap((item) => {
-    const element = item as HTMLElement
-    const image = element.matches('img')
-      ? element as HTMLImageElement
-      : element.querySelector('img')
+  const items: Array<{ element: HTMLElement; image: HTMLImageElement }> = []
 
-    return image ? [{ element, image }] : []
+  Array.from(root.value.children).forEach((item) => {
+    const element = item as HTMLElement
+
+    if (element.matches('img')) {
+      items.push({ element, image: element as HTMLImageElement })
+      return
+    }
+
+    const images = element.querySelectorAll('img')
+    if (images.length === 1) {
+      items.push({ element, image: images[0] as HTMLImageElement })
+    } else if (images.length > 1) {
+      images.forEach((img) => {
+        const wrapper = document.createElement('div')
+        wrapper.dataset.galleryItem = ''
+        const caption = img.nextElementSibling
+        const hasCaption = caption?.classList?.contains('img-caption')
+
+        root.value!.insertBefore(wrapper, element)
+        wrapper.appendChild(img)
+        if (hasCaption) wrapper.appendChild(caption)
+
+        items.push({ element: wrapper, image: img as HTMLImageElement })
+      })
+      element.remove()
+    }
   })
+
+  return items
 }
 
 function layout() {
@@ -67,10 +90,7 @@ function layout() {
     )
     // Leave one pixel for browser subpixel rounding so a full row never wraps.
     const availableWidth = width - (items.length - 1) * props.gap - 1
-    const isLastRow = index === rows.length - 1
-    const height = isLastRow
-      ? Math.min(props.rowHeight, availableWidth / totalRatio)
-      : availableWidth / totalRatio
+    const height = availableWidth / totalRatio
 
     items.forEach((item) => {
       const itemWidth = height * Number(item.element.dataset.galleryRatio)
@@ -140,7 +160,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   margin: 0 !important;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .qut-gallery > [data-gallery-item] > a,

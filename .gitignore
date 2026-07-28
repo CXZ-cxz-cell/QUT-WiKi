@@ -1,5 +1,7 @@
 node_modules
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/.vitepress/contributors.json
 .DS_Store
 *.log
+.playwright-mcp

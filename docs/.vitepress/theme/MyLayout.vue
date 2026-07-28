@@ -1,6 +1,7 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
 import { ref, onMounted, onUnmounted } from 'vue'
+import Contributors from './components/Contributors.vue'
 
 const visible = ref(false)
 const src = ref('')
@@ -102,7 +103,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DefaultTheme.Layout />
+  <DefaultTheme.Layout>
+    <template #doc-after>
+      <Contributors />
+    </template>
+  </DefaultTheme.Layout>
   <Teleport to="body">
     <div v-if="visible" class="img-viewer-bg" @click="close">
       <button class="img-viewer-close" @click="close">&times;</button>

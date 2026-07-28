@@ -11,16 +11,20 @@ hero:
       link: start/preface/introduction
     - theme: alt
       text: 加入我们
-      link: start/preface/join-us
+      link: start/about/join-us
 
 features:
   - icon: ⚡️
     title: 序言
-    details: 项目介绍&加入我们
+    details: 项目介绍
     link: start/preface/introduction
   - icon: 📚
     title: 新生入学
     details: 帮助你快速融入校园生活
     link: start/newstudent/campus-buildings
+  - icon: 📝
+    title: 关于
+    details: 参与贡献&加入我们
+    link: start/about/contribute
 
 ---
