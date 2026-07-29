@@ -26,7 +26,7 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
-    ![](https://pic1.imgdb.cn/i/033xcFzpJDYm7cQCSJYt76.webp)
+    ![公众号页面](https://pic1.imgdb.cn/i/033xcFzpJDYm7cQCSJYt76.webp)
 
 - 在企业微信中缴费：
 
@@ -42,8 +42,12 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
+<Gallery>
+
     ![微信中缴费1](https://pic1.imgdb.cn/i/033xcG3FWiol7TDqS46L1B.webp)
     ![微信中缴费2](https://pic1.imgdb.cn/i/033xcG4WODly3ALykcqNI2.webp)
+
+</Gallery>
 
 - 在电脑端缴费：
 
@@ -51,9 +55,12 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
+<Gallery>
+
     ![电脑端缴费1](https://pic1.imgdb.cn/i/033xcG5shsBQTYru5XoNh4.webp)
     ![电脑端缴费2](https://pic1.imgdb.cn/i/033xcG7X3iUufrDr10DWQE.webp)
 
+</Gallery>
 
 ## 套餐类型
 
