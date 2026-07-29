@@ -65,11 +65,17 @@ function getContributors(relPath) {
       .map(c => {
         const emails = [...c.emails.keys()]
         let github = resolveGitHub(emails, c.name)
+        let avatar
         if (!github) {
           const lowerEmails = emails.map(e => e.toLowerCase())
-          for (const [key, gh] of Object.entries(mapping)) {
+          for (const [key, val] of Object.entries(mapping)) {
             if (lowerEmails.includes(key.toLowerCase()) || c.name.toLowerCase() === key.toLowerCase()) {
-              github = gh
+              if (typeof val === 'object' && val !== null) {
+                github = val.github
+                avatar = val.avatar
+              } else {
+                github = val
+              }
               break
             }
           }
@@ -78,6 +84,7 @@ function getContributors(relPath) {
           name: c.name,
           email: c.firstEmail,
           github,
+          avatar,
           commits: c.total,
         }
       })
