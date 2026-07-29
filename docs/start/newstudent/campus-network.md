@@ -20,13 +20,13 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     首先关注数智青理公众号。
 
-    ![数智青理公众号](https://pic1.imgdb.cn/i/033xcFn75UGMI0WC2aX7ik.webp)
+![数智青理公众号](https://pic1.imgdb.cn/i/033xcFn75UGMI0WC2aX7ik.webp)
 
     点击私信，在右下角 校园网 -> 套餐缴费 中即可缴费。
 
     流程如下图所示：
 
-    ![公众号页面](https://pic1.imgdb.cn/i/033xcFzpJDYm7cQCSJYt76.webp)
+![公众号页面](https://pic1.imgdb.cn/i/033xcFzpJDYm7cQCSJYt76.webp)
 
 - 在企业微信中缴费：
 
@@ -34,7 +34,7 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
-    ![在企业微信中缴费](https://pic1.imgdb.cn/i/033xcG1oKixV8JMi5bYE4v.webp)
+![在企业微信中缴费](https://pic1.imgdb.cn/i/033xcG1oKixV8JMi5bYE4v.webp)
 
 - 在微信中缴费：
 
@@ -44,8 +44,8 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
 <Gallery>
 
-    ![微信中缴费1](https://pic1.imgdb.cn/i/033xcG3FWiol7TDqS46L1B.webp)
-    ![微信中缴费2](https://pic1.imgdb.cn/i/033xcG4WODly3ALykcqNI2.webp)
+![微信中缴费1](https://pic1.imgdb.cn/i/033xcG3FWiol7TDqS46L1B.webp)
+![微信中缴费2](https://pic1.imgdb.cn/i/033xcG4WODly3ALykcqNI2.webp)
 
 </Gallery>
 
@@ -57,8 +57,8 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
 <Gallery>
 
-    ![电脑端缴费1](https://pic1.imgdb.cn/i/033xcG5shsBQTYru5XoNh4.webp)
-    ![电脑端缴费2](https://pic1.imgdb.cn/i/033xcG7X3iUufrDr10DWQE.webp)
+![电脑端缴费1](https://pic1.imgdb.cn/i/033xcG5shsBQTYru5XoNh4.webp)
+![电脑端缴费2](https://pic1.imgdb.cn/i/033xcG7X3iUufrDr10DWQE.webp)
 
 </Gallery>
 
