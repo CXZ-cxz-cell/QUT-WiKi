@@ -46,7 +46,7 @@ function hue(name) {
         :href="c.github ? `https://github.com/${c.github}` : undefined"
         :target="c.github ? '_blank' : undefined"
         :rel="c.github ? 'noopener noreferrer' : undefined"
-        :title="`${c.name}（${c.commits} 次提交）`"
+        :title="c.name"
       >
         <img
           v-if="avatarUrl(c)"
@@ -61,7 +61,6 @@ function hue(name) {
           :style="{ background: `hsl(${hue(c.name)}, 50%, 50%)` }"
         >{{ initials(c.name) }}</span>
         <span class="contributor-name">{{ c.name }}</span>
-        <span class="contributor-commits">{{ c.commits }}</span>
       </a>
     </div>
   </div>
