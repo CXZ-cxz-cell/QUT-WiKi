@@ -95,3 +95,56 @@ body::before {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
+
+.VPDocFooter {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.xlsx-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.xlsx-table-wrapper table {
+  table-layout: auto !important;
+  width: auto;
+  min-width: 100%;
+}
+
+.xlsx-table-wrapper th,
+.xlsx-table-wrapper td {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.xlsx-sheet-title {
+  margin-top: 24px !important;
+  padding-top: 16px;
+  border-top: 2px solid var(--vp-c-divider);
+}
+
+.xlsx-sheet-title:first-child {
+  margin-top: 0 !important;
+  padding-top: 0;
+  border-top: none;
+}
+
+.page-no-outline .VPDoc .aside {
+  display: none !important;
+}
+
+.page-no-outline .VPDoc .content-container,
+.page-no-outline .VPDoc .content-container .vp-doc,
+.page-no-outline .VPDoc .VPDocFooter {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.VPDocFooter .contributors {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}

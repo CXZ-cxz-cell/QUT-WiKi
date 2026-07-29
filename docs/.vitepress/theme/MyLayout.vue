@@ -1,7 +1,10 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
+import { useData } from 'vitepress'
 import { ref, onMounted, onUnmounted } from 'vue'
 import Contributors from './components/Contributors.vue'
+
+const { frontmatter } = useData()
 
 const visible = ref(false)
 const src = ref('')
@@ -103,11 +106,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DefaultTheme.Layout>
-    <template #doc-after>
-      <Contributors />
-    </template>
-  </DefaultTheme.Layout>
+  <div :class="{ 'page-no-outline': frontmatter.outline === false }">
+    <DefaultTheme.Layout>
+      <template #doc-footer-before>
+        <Contributors />
+      </template>
+    </DefaultTheme.Layout>
+  </div>
   <Teleport to="body">
     <div v-if="visible" class="img-viewer-bg" @click="close">
       <button class="img-viewer-close" @click="close">&times;</button>

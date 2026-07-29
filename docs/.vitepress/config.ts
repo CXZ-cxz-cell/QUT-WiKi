@@ -1,8 +1,9 @@
 import { defineConfig, type DefaultTheme } from 'vitepress'
-import { readdirSync, readFileSync, statSync } from 'fs'
+import { readdirSync, readFileSync, statSync, existsSync } from 'fs'
 import { resolve, extname, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import taskLists from 'markdown-it-task-lists'
+import { xlsxTablePlugin } from './plugins/xlsx-table'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
@@ -132,6 +133,24 @@ function buildStartSidebar(): DefaultTheme.SidebarItem[] {
   return groups
 }
 
+// dev 模式下监听 xlsx 文件变化，触发浏览器刷新
+function xlsxWatchPlugin() {
+  return {
+    name: 'qutwiki-xlsx-watch',
+    configureServer(server: any) {
+      const resourcesDir = resolve(docsRoot, 'resources')
+      if (existsSync(resourcesDir)) {
+        server.watcher.add(resourcesDir)
+      }
+      server.watcher.on('change', (path: string) => {
+        if (path.endsWith('.xlsx')) {
+          server.ws.send({ type: 'full-reload' })
+        }
+      })
+    },
+  }
+}
+
 // dev 模式下监听 docs/start：仅当生成结果（结构/标题/顺序）变化时重启，
 // 普通正文编辑保持 VitePress 原生 HMR，不触发重启。
 function sidebarWatchPlugin() {
@@ -196,11 +215,12 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   vite: {
-    plugins: [sidebarWatchPlugin()],
+    plugins: [xlsxWatchPlugin(), sidebarWatchPlugin()],
   },
   markdown: {
     config: (md) => {
       md.use(taskLists)
+      md.use(xlsxTablePlugin, docsRoot)
       md.core.ruler.push('word_count', (state) => {
         const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
         const count = text.length
