@@ -20,13 +20,13 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     首先关注数智青理公众号。
 
-    ![](./campusNetworkImage/shu_zhi_qing_li.webp)
+    ![数智青理公众号](https://pic1.imgdb.cn/i/033xcFn75UGMI0WC2aX7ik.webp)
 
     点击私信，在右下角 校园网 -> 套餐缴费 中即可缴费。
 
     流程如下图所示：
 
-    ![](./campusNetworkImage/gong_zhong_hao.webp)
+    ![](https://pic1.imgdb.cn/i/033xcFzpJDYm7cQCSJYt76.webp)
 
 - 在企业微信中缴费：
 
@@ -34,7 +34,7 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
-    ![](./campusNetworkImage/qi_ye_wei_xin.webp)
+    ![在企业微信中缴费](https://pic1.imgdb.cn/i/033xcG1oKixV8JMi5bYE4v.webp)
 
 - 在微信中缴费：
 
@@ -42,8 +42,8 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
-    ![](./campusNetworkImage/wei_xin_1.webp)
-    ![](./campusNetworkImage/wei_xin_2.webp)
+    ![微信中缴费1](https://pic1.imgdb.cn/i/033xcG3FWiol7TDqS46L1B.webp)
+    ![微信中缴费2](https://pic1.imgdb.cn/i/033xcG4WODly3ALykcqNI2.webp)
 
 - 在电脑端缴费：
 
@@ -51,8 +51,8 @@ description: 青岛理工大学校园网套餐类型、缴费方式与登录方�
 
     流程如下图所示：
 
-    ![](./campusNetworkImage/dian_nao_duan_1.webp)
-    ![](./campusNetworkImage/dian_nao_duan_2.webp)
+    ![电脑端缴费1](https://pic1.imgdb.cn/i/033xcG5shsBQTYru5XoNh4.webp)
+    ![电脑端缴费2](https://pic1.imgdb.cn/i/033xcG7X3iUufrDr10DWQE.webp)
 
 
 ## 套餐类型
