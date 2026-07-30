@@ -1,341 +1,80 @@
 # 参与编写
 
-本指南面向所有希望为 **青理 Wiki（QUTWiKi）** 贡献内容的同学。无论你写的是校园生活经验、学习资源还是实用教程，只要对青岛理工大学的学生有帮助，都欢迎提交。
-
-我们专门开放了 `contribute` 分支用于接收内容 PR，所有 Markdown 文档的投稿都请面向该分支提交。
+本指南介绍如何向青理 Wiki（QUTWiKi）贡献内容。
 
 ---
 
 ## 一、准备环境
 
-### 1. 安装基础工具
-
-- [Node.js](https://nodejs.org/) 18 或以上版本
-- [Git](https://git-scm.com/)
-- 一个 [GitHub](https://github.com/) 账号
+- [Node.js](https://nodejs.org/) 18+，推荐 [nvm-windows](https://github.com/coreybutler/nvm-windows)
+- [Git](https://git-scm.com/)，配置用户名和邮箱
 - 推荐编辑器：[VS Code](https://code.visualstudio.com/)
 
-#### 安装 Node.js
-
-**Windows：**
-
-推荐使用 [nvm-windows](https://github.com/coreybutler/nvm-windows) 管理 Node.js 版本。下载 `nvm-setup.exe` 安装后：
-
-```powershell
-nvm install 22
-nvm use 22
-```
-
-或前往 [npmmirror 镜像站](https://npmmirror.com/) 下载 LTS 版本 `.msi` 安装包，双击运行即可。
-
-**macOS / Linux：**
-
-推荐使用 nvm（Node Version Manager），国内用户建议先配置镜像加速：
-
-```bash
-# 安装 nvm（使用 Gitee 镜像）
-curl -fsSL https://gitee.com/mirrors/nvm/raw/master/install.sh | bash
-
-# 重启终端后，安装 Node.js
-export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node
-nvm install 22
-nvm use 22
-```
-
-安装完成后在终端中验证：
-
-```bash
-node -v    # 如 v22.x.x
-npm -v     # 如 10.x.x
-```
-
-::: tip 配置 npm 国内源
-安装后建议将 npm 源切换为国内镜像，加快包下载：
-
+::: tip 国内加速
 ```bash
 npm config set registry https://registry.npmmirror.com
 ```
 :::
 
-### 2. 配置 Git 身份
-
-首次使用 Git 需配置用户信息：
-
-```bash
-git config --global user.name  "你的名字"
-git config --global user.email "你的邮箱"
-```
-
 ---
 
-## 二、获取项目代码
-
-由于你大概率没有仓库的直接推送权限，请使用 **Fork + Clone** 的方式：
+## 二、获取代码
 
 ```bash
-# 1. 在 GitHub 上点击 Fork，将仓库复制到自己的账号下
-
-# 2. 克隆你 Fork 出来的仓库（替换 YOUR_USERNAME）
+# Fork 后在 GitHub 上复制你的仓库地址
 git clone https://github.com/YOUR_USERNAME/QUTWiKi.git
-
-# 3. 进入项目目录
-cd QUTWiKi
-
-# 4. 添加上游仓库，方便后续同步更新
-git remote add upstream https://github.com/原作者用户名/QUTWiKi.git
-```
-
-如果你是仓库的直接协作者，也可以直接克隆原仓库：
-
-```bash
-git clone https://github.com/原作者用户名/QUTWiKi.git
 cd QUTWiKi
 ```
 
 ---
 
-## 三、切换到贡献分支
-
-**所有内容 PR 都请基于 `contribute` 分支提交**，这是项目专用的内容贡献分支。
+## 三、安装并预览
 
 ```bash
-# 切换到贡献分支
-git checkout contribute
-
-# 拉取最新代码（避免和他人冲突）
-git pull origin contribute
-# 若使用的是 upstream，则：
-git pull upstream contribute
+npm install
+npm run dev
 ```
 
-为你的本次贡献新建一个工作分支，分支名建议用英文小写 + 短横线，例如：
+浏览器访问 `http://localhost:5173`，修改 `.md` 后自动热更新。或直接运行 `.\build.ps1`。
+
+---
+
+## 四、编写文档
+
+### 文件位置
+
+`docs/start/` 下按目录分类存放：
+
+| 目录 | 内容 |
+|------|------|
+| `newstudent/` | 新生入学 |
+| `campus-life/` | 校园生活 |
+| `about/` | 关于本站 |
+
+### 命名与格式
+
+- 小写英文 + 短横线：`canteen-guide.md`
+- 必含一个 `# 标题`，或写 `title: 标题` 在 frontmatter 中
+- 更多自定义功能（xlsx 表格、Gallery 画廊、贡献者显示等）见 [站点功能说明](./features)
+
+---
+
+## 五、提交 PR
 
 ```bash
-git checkout -b docs/我的新文档
-```
-
----
-
-## 四、安装依赖并本地预览
-
-```bash
-# 如果还没配国内源，先执行：
-# npm config set registry https://registry.npmmirror.com
-
-npm install          # 安装项目依赖
-npm run dev          # 启动开发服务器
-```
-
-浏览器访问 `http://localhost:5173` 即可实时预览。修改 Markdown 后页面会自动热更新。
-
----
-
-## 五、编写文档
-
-### 1. 文件存放位置
-
-按照内容类型放到 `docs/` 下的对应目录：
-
-| 内容类型           | 存放目录                          |
-| ------------------ | --------------------------------- |
-| 使用指南、项目说明   | `docs/start/`                     |
-| 新生入学相关        | `docs/start/newstudent/`          |
-| 校园生活、住宿、餐饮 | `docs/start/life/`                |
-| 学习资源、课程经验   | `docs/start/study/`               |
-| 社团、活动          | `docs/start/clubs/`               |
-| 交通、出行          | `docs/start/transport/`           |
-| 示例与模板          | `docs/start/examples/`            |
-
-如果目录不存在，自行新建即可。
-
-### 2. 文件命名规范
-
-- 使用**小写英文或拼音**作为文件名，便于生成干净的 URL
-- 词与词之间用短横线 `-` 连接
-- 示例：`canteen-start.md`、`library-rules.md`
-
-::: warning 注意
-请避免使用中文或空格作为文件名。中文文件名会导致 URL 被编码为 `%E5%8F%82...` 的形式，不美观且影响分享。更严重的是，直接访问含中文的 URL 可能无法正确加载页面。
-:::
-
-### 3. Markdown 模板
-
-每篇文档建议包含以下结构：
-
-```md
-# 文档标题
-
-一段简短的引言，说明本文解决什么问题。
-
-## 第一节
-
-正文内容……
-
-## 相关链接
-
-- [参考链接](https://example.com)
-```
-
-### 4. Frontmatter（可选）
-
-在文件顶部可加入元信息：
-
-```md
----
-title: 文档标题
-description: 一句话描述
----
-```
-
-### 5. 图片相册
-
-需要将多张图片按原始宽高比合并展示时，可以使用全局的 `Gallery` 组件：
-
-```md
-<Gallery>
-
-![教学楼](https://example.com/building.jpg)
-
-![实验楼](https://example.com/laboratory.jpg)
-
-![图书馆](https://example.com/library.jpg)
-
-</Gallery>
-```
-
-组件会根据图片尺寸和页面宽度自动分行，点击图片仍可使用站内的大图预览。可以通过 `row-height` 调整目标行高，通过 `gap` 调整图片间距，默认值分别为 `220` 和 `8`：
-
-```md
-<Gallery :row-height="180" :gap="6">
-
-![图片一](https://example.com/one.jpg)
-
-![图片二](https://example.com/two.jpg)
-
-</Gallery>
-```
-
-图片前后需要保留空行，否则 Markdown 不会将其解析为图片。
-
-### 6. 导航与侧边栏
-
-站点导航和侧边栏需在 `docs/.vitepress/config.ts` 的 `themeConfig` 中手动配置。添加新页面后需要同步更新配置中的 `nav` 和 `sidebar` 字段，具体请参考 [VitePress 文档](https://vitepress.dev/reference/default-theme-config)。
-
----
-
-## 六、提交并推送
-
-### 1. 本地校验
-
-提交前务必确认本地能正常构建：
-
-```bash
-npm run build
-```
-
-在 PowerShell 终端中也可以运行项目自带的构建脚本：
-
-```powershell
-.\build.ps1
-```
-
-如果构建报错，请先修复问题再提交。
-
-### 2. 提交规范
-
-使用**中文提交信息**，并遵循以下格式：
-
-```
-<类型>: <简要说明>
-
-<可选的详细说明>
-```
-
-常用类型：
-
-| 类型     | 用途               |
-| -------- | ------------------ |
-| 新增     | 新增文档           |
-| 修订     | 修正内容或排版     |
-| 删除     | 移除过时内容       |
-| 配置     | 修改站点配置       |
-
-示例：
-
-```bash
-git add docs/life/canteen-start.md
-git commit -m "新增: 食堂就餐指南"
-```
-
-### 3. 推送到你的仓库
-
-```bash
-git push origin docs/我的新文档
-```
-
----
-
-## 七、发起 Pull Request
-
-1. 打开你 Fork 的 GitHub 仓库页面
-2. 点击 **Compare & pull request**
-3. **关键：把 base 分支选为 `contribute`**，而不是 `main`
-4. 标题用简短中文，例如：`新增: 食堂就餐指南`
-5. 在描述中说明：
-   - 新增/修改了什么内容
-   - 是否已本地构建通过
-   - 相关截图（如有）
-6. 提交 PR，等待维护者 review
-
-### PR 描述模板
-
-```
-## 本次变更内容
-- 新增 docs/life/canteen-start.md
-
-## 自检
-- [x] npm run build 通过
-- [x] 本地预览正常
-```
-
----
-
-## 八、协作注意事项
-
-- **每次贡献前先拉取最新代码**，避免冲突：`git pull upstream contribute`
-- 一个 PR 只做一件事，不要把多个不相关的内容塞进同一个 PR
-- 文档内容请确保准确、客观，避免主观攻击性言论
-- 引用他人资料请注明出处
-- 涉及个人隐私（如学长联系方式）需征得本人同意
-- 收到 review 意见后，请在本分支继续提交修改并 push，无需新开 PR
-
----
-
-## 九、常见问题
-
-### Q1：PR 被要求修改怎么办？
-
-在同一分支继续 commit 并 push 即可，PR 会自动更新：
-
-```bash
+git checkout -b docs/我的文档
 git add .
-git commit -m "修订: 根据 review 调整食堂段落"
-git push origin docs/我的新文档
+git commit -m "新增: 文档说明"
+git push origin docs/我的文档
 ```
 
-### Q2：和 `main` 分支冲突了怎么办？
-
-```bash
-git fetch upstream
-git rebase upstream/contribute
-# 解决冲突后
-git push origin docs/我的新文档 --force-with-lease
-```
-
-### Q3：我不想 Fork，能直接提吗？
-
-如果你是仓库协作者，可以直接在原仓库开分支并提 PR 到 `contribute`。但请**不要直接 push 到 `contribute`**，仍然走 PR 流程以便 review。
+在 GitHub 上发起 Pull Request，base 分支选 `contribute`。
 
 ---
 
-感谢你的贡献！每一份文档都是青理同学共同的财富。💚
+## 六、注意事项
+
+- 每次贡献前先 `git pull` 最新代码
+- 一 PR 一事，不混入无关修改
+- 引用资料注明出处，个人信息须经本人同意
+- 收到 review 后在同一分支继续修改并 push 即可
