@@ -13,10 +13,13 @@ try {
     }
 
     # 清理占用 5173 端口的旧进程
-    $pid5173 = (netstat -ano | Select-String ':5173' | Select-String 'LISTENING').ToString().Trim() -split '\s+' | Select-Object -Last 1
-    if ($pid5173) {
-        Stop-Process -Id $pid5173 -Force -ErrorAction SilentlyContinue
-        Start-Sleep 1
+    $portLine = netstat -ano | Select-String ':5173' | Select-String 'LISTENING' | Select-Object -First 1
+    if ($portLine) {
+        $pid5173 = ($portLine.ToString().Trim() -split '\s+')[-1]
+        if ($pid5173) {
+            Stop-Process -Id $pid5173 -Force -ErrorAction SilentlyContinue
+            Start-Sleep 1
+        }
     }
 
     & npm.cmd run dev -- --port 5173 --strictPort
