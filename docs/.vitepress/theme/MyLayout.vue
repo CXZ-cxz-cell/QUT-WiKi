@@ -1,10 +1,11 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
-import { useData } from 'vitepress'
+import { useData, useRoute } from 'vitepress'
 import { ref, onMounted, onUnmounted } from 'vue'
 import Contributors from './components/Contributors.vue'
 
 const { frontmatter } = useData()
+const route = useRoute()
 
 const visible = ref(false)
 const src = ref('')
@@ -106,7 +107,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="{ 'page-no-outline': frontmatter.outline === false || frontmatter.sidebar === false }">
+  <div :class="{ 'page-no-outline': frontmatter.outline === false || frontmatter.sidebar === false }" :key="route.path">
     <DefaultTheme.Layout>
       <template #doc-footer-before>
         <Contributors />
