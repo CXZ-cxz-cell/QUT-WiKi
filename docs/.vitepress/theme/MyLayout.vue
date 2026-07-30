@@ -106,7 +106,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="{ 'page-no-outline': frontmatter.outline === false }">
+  <div :class="{ 'page-no-outline': frontmatter.outline === false || frontmatter.sidebar === false }">
     <DefaultTheme.Layout>
       <template #doc-footer-before>
         <Contributors />

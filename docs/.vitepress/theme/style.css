@@ -101,21 +101,111 @@ body::before {
   row-gap: 6px;
 }
 
-.xlsx-table-wrapper {
-  overflow-x: auto;
+.xlsx-cards {
   margin: 16px 0;
 }
 
-.xlsx-table-wrapper table {
-  table-layout: auto !important;
-  width: auto;
-  min-width: 100%;
+.xlsx-card-group {
+  margin-bottom: 28px;
 }
 
-.xlsx-table-wrapper th,
-.xlsx-table-wrapper td {
-  padding: 8px 12px;
+.xlsx-card-group-title {
+  margin: 0 0 12px !important;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--vp-c-divider);
+  font-size: 18px !important;
+}
+
+.xlsx-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.xlsx-card {
+  display: grid;
+}
+
+.xlsx-card-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+
+  padding: 12px 8px;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+  transition: box-shadow 0.2s;
+}
+
+.xlsx-card-face:hover {
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.08);
+}
+
+.xlsx-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgb(1 93 149 / 0.1);
+  color: rgb(1 93 149);
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.xlsx-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  line-height: 1.4;
+}
+
+.xlsx-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 6px;
+}
+
+.xlsx-badge {
+  display: inline-block;
+  font-size: 11.5px;
+  line-height: 1.4;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background: rgb(0 119 255 / 0.133);
+  color: var(--vp-c-text-1);
   white-space: nowrap;
+}
+
+.xlsx-card-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--vp-c-divider);
+  width: 100%;
+}
+
+.xlsx-info-item + .xlsx-info-item::before {
+  content: ' | ';
+  color: var(--vp-c-divider);
+}
+
+.xlsx-info-sep::before {
+  content: '·';
+  margin: 0 4px;
 }
 
 .xlsx-sheet-title {
@@ -130,8 +220,31 @@ body::before {
   border-top: none;
 }
 
+.page-no-outline .VPContent {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.page-no-outline .VPDoc {
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+}
+
 .page-no-outline .VPDoc .aside {
   display: none !important;
+}
+
+.page-no-outline .VPDoc .container,
+.page-no-outline .VPDoc .content {
+  margin-left: 24px !important;
+  margin-right: 24px !important;
+  padding-left: 0 !important;
+}
+
+.page-no-outline .VPDoc.has-aside .container {
+  max-width: none !important;
+  margin-left: 24px !important;
+  margin-right: 24px !important;
 }
 
 .page-no-outline .VPDoc .content-container,
