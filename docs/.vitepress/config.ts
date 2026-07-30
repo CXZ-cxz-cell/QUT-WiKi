@@ -32,8 +32,18 @@ function getDirectoryLabel(relativeDir: string): string {
 }
 
 // 读取 Markdown 的一级标题，跳过代码块内的伪标题。
+// 优先使用 frontmatter 中的 title，其次 # 标题，最后 <h1> 标签
 function extractTitle(file: string): string {
-  const lines = readFileSync(file, 'utf-8').split(/\r?\n/)
+  const raw = readFileSync(file, 'utf-8')
+
+  // 检查 frontmatter title
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/)
+  if (fmMatch) {
+    const titleMatch = fmMatch[1].match(/^title:\s*(.+)$/m)
+    if (titleMatch) return titleMatch[1].trim().replace(/^["'](.+)["']$/, '$1')
+  }
+
+  const lines = raw.split(/\r?\n/)
   let fence: string | null = null
   for (const line of lines) {
     const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/)
@@ -46,6 +56,8 @@ function extractTitle(file: string): string {
     if (fence === null) {
       const heading = line.match(/^#(?!#)\s+(.+?)\s*$/)
       if (heading) return heading[1].replace(/\s+#+\s*$/, '').trim()
+      const h1 = line.match(/<h1[^>]*>(.+?)<\/h1>/i)
+      if (h1) return h1[1].trim()
     }
   }
   throw new Error(`Markdown 文件缺少一级标题：${file}`)
