@@ -32,7 +32,7 @@ function syncDownloadFile(url: string): Buffer | null {
   }
 }
 
-function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[], avatarCol: string | null, descCol: string | null, tagCols: string[]): string {
+function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[], avatarCol: string | null, descCol: string | null, tagCols: string[], nameCol: string | null): string {
   const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
   const rows = rawRows.filter(r => r.some((c: any) => c != null && String(c).trim() !== ''))
   if (rows.length === 0) return '<p>（空表格）</p>'
@@ -54,6 +54,8 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
   if (avatarCol && avatarIdx === -1) return `<p ${DANGER}>[xlsx] 头像列 "${esc(avatarCol)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
   const descIdx = descCol ? header.findIndex(h => h === descCol) : -1
   if (descCol && descIdx === -1) return `<p ${DANGER}>[xlsx] 描述列 "${esc(descCol)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
+  const nameIdx = nameCol ? header.findIndex(h => h === nameCol) : -1
+  if (nameCol && nameIdx === -1) return `<p ${DANGER}>[xlsx] 名称列 "${esc(nameCol)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
 
   for (const ki of keyIndices) {
     let lastVal = ''
@@ -64,7 +66,7 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
   }
 
   const groups = keyIndices.length > 0 ? buildGroups(body, keyIndices[0]) : new Map<string, any[][]>([['', body]])
-  const titleIdx = keyIndices.length >= 2 ? keyIndices[1] : (keyIndices.length === 1 ? keyIndices[0] : -1)
+  const titleIdx = nameIdx >= 0 ? nameIdx : (keyIndices.length >= 2 ? keyIndices[1] : (keyIndices.length === 1 ? keyIndices[0] : -1))
   let html = '<div class="xlsx-cards">\n'
 
   for (const [gName, gRows] of groups) {
@@ -169,6 +171,7 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
     let avatarCol: string | null = null
     let descCol: string | null = null
     let tagCols: string[] = []
+    let nameCol: string | null = null
 
     const qIdx = spec.indexOf('?')
     if (qIdx !== -1) {
@@ -185,6 +188,7 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
         else if (name === 'avatar') avatarCol = vals[0] || null
         else if (name === 'desc') descCol = vals[0] || null
         else if (name === 'tag') tagCols = vals
+        else if (name === 'name') nameCol = vals[0] || null
         else if (name === 'sheet' || name === 'table') targetSheet = vals[0] || null
       }
     }
@@ -214,15 +218,15 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
       if (targetSheet) {
         const sheet = wb.Sheets[targetSheet]
         if (!sheet) return `<p ${DANGER}>[xlsx] 工作表 "${esc(targetSheet)}" 不存在（可用：${names.map(esc).join('、')}）</p>`
-        return sheetToHtml(sheet, keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
+        return sheetToHtml(sheet, keyCols, hideCols, contactCols, avatarCol, descCol, tagCols, nameCol)
       }
 
-      if (names.length === 1) return sheetToHtml(wb.Sheets[names[0]], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
+      if (names.length === 1) return sheetToHtml(wb.Sheets[names[0]], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols, nameCol)
 
       let out = ''
       for (const name of names) {
         out += `<h3 class="xlsx-sheet-title">${esc(name)}</h3>\n`
-        out += sheetToHtml(wb.Sheets[name], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
+        out += sheetToHtml(wb.Sheets[name], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols, nameCol)
       }
       return out
     } catch (e: any) {
