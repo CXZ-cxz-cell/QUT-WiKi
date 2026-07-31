@@ -133,16 +133,57 @@ body::before {
   text-align: center;
   gap: 6px;
 
-  padding: 12px 8px;
+  position: relative;
+  padding: 0 8px 12px;
   overflow: hidden;
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
   background: var(--vp-c-bg-soft);
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .xlsx-card-face:hover {
-  box-shadow: 0 2px 12px rgb(0 0 0 / 0.08);
+  box-shadow: 0 2px 16px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+.xlsx-card-blur-bg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scale(1.2);
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  filter: blur(18px) brightness(1.15);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.xlsx-card-banner {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.xlsx-card-avatar-el {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--vp-c-bg-soft);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.xlsx-card-desc {
+  font-size: 12.5px;
+  color: var(--vp-c-text-2);
+  line-height: 1.5;
+  margin-top: 1px;
+  padding: 0 4px;
 }
 
 .xlsx-card-avatar {
@@ -177,11 +218,13 @@ body::before {
   display: inline-block;
   font-size: 11.5px;
   line-height: 1.4;
-  padding: 2px 6px;
+  padding: 1px 7px;
   border-radius: 12px;
-  background: rgb(0 119 255 / 0.133);
-  color: var(--vp-c-text-1);
+  border: 1px solid var(--vp-c-tip-soft);
+  background: var(--vp-c-tip-soft);
+  color: var(--vp-c-tip);
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .xlsx-card-info {
@@ -189,13 +232,31 @@ body::before {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  gap: 6px;
   font-size: 13px;
   color: var(--vp-c-text-2);
   margin-top: auto;
   padding-top: 8px;
   border-top: 1px solid var(--vp-c-divider);
   width: 100%;
+}
+
+.xlsx-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+
+.xlsx-card-link-icon {
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+
+.xlsx-info-item {
+  font-size: 13px;
+  color: var(--vp-c-text-2);
 }
 
 .xlsx-info-item + .xlsx-info-item::before {

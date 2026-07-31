@@ -1,5 +1,7 @@
-import { existsSync } from 'fs'
-import { resolve } from 'path'
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
+import { resolve, join } from 'path'
+import { tmpdir } from 'os'
+import { execSync } from 'child_process'
 import XLSX from 'xlsx'
 
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
@@ -9,7 +11,28 @@ function esc(s: string): string {
   return s.replace(/[&<>"]/g, c => map[c] || c)
 }
 
-function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[]): string {
+function syncDownloadFile(url: string): Buffer | null {
+  const tmpFile = join(tmpdir(), `xlsx_${Date.now()}_${Math.random().toString(36).slice(2)}.xlsx`)
+  const scriptFile = join(tmpdir(), `xlsx_dl_${Date.now()}.js`)
+  writeFileSync(scriptFile, `
+    fetch(${JSON.stringify(url)})
+      .then(r => { if (!r.ok) throw new Error(r.status + ' ' + r.statusText); return r.arrayBuffer() })
+      .then(b => require('fs').writeFileSync(${JSON.stringify(tmpFile)}, Buffer.from(b)))
+      .catch(() => process.exit(1))
+  `)
+  try {
+    execSync(`node "${scriptFile}"`, { timeout: 30000, stdio: 'pipe', windowsHide: true })
+    const buf = readFileSync(tmpFile)
+    return buf
+  } catch {
+    return null
+  } finally {
+    try { unlinkSync(tmpFile) } catch {}
+    try { unlinkSync(scriptFile) } catch {}
+  }
+}
+
+function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[], avatarCol: string | null, descCol: string | null, tagCols: string[]): string {
   const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
   const rows = rawRows.filter(r => r.some((c: any) => c != null && String(c).trim() !== ''))
   if (rows.length === 0) return '<p>（空表格）</p>'
@@ -18,6 +41,7 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
   const body = rows.slice(1)
   const hideSet = new Set(hideCols)
   const contactSet = new Set(contactCols)
+  const tagSet = new Set(tagCols)
 
   const keyIndices: number[] = []
   for (const k of keyCols) {
@@ -25,6 +49,11 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
     if (idx === -1) return `<p ${DANGER}>[xlsx] 主键列 "${esc(k)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
     keyIndices.push(idx)
   }
+
+  const avatarIdx = avatarCol ? header.findIndex(h => h === avatarCol) : -1
+  if (avatarCol && avatarIdx === -1) return `<p ${DANGER}>[xlsx] 头像列 "${esc(avatarCol)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
+  const descIdx = descCol ? header.findIndex(h => h === descCol) : -1
+  if (descCol && descIdx === -1) return `<p ${DANGER}>[xlsx] 描述列 "${esc(descCol)}" 不存在（可用：${header.map(esc).join('、')}）</p>`
 
   for (const ki of keyIndices) {
     let lastVal = ''
@@ -35,7 +64,7 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
   }
 
   const groups = keyIndices.length > 0 ? buildGroups(body, keyIndices[0]) : new Map<string, any[][]>([['', body]])
-  const titleIdx = keyIndices.length >= 2 ? keyIndices[1] : -1
+  const titleIdx = keyIndices.length >= 2 ? keyIndices[1] : (keyIndices.length === 1 ? keyIndices[0] : -1)
   let html = '<div class="xlsx-cards">\n'
 
   for (const [gName, gRows] of groups) {
@@ -45,7 +74,7 @@ function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[
     }
     html += '<div class="xlsx-card-grid">\n'
     for (const row of gRows) {
-      html += renderCard(header, row, titleIdx, hideSet, contactSet)
+      html += renderCard(header, row, titleIdx, descIdx, avatarIdx, hideSet, contactSet, tagSet)
     }
     html += '</div>\n'
     if (gName) html += '</div>\n'
@@ -66,8 +95,21 @@ function buildGroups(body: any[][], keyIdx: number): Map<string, any[][]> {
   return groups
 }
 
-function renderCard(header: string[], row: any[], titleIdx: number, hideSet: Set<string>, contactSet: Set<string>): string {
+function genAvatarUrl(val: string): string {
+  if (!val) return ''
+  if (val.startsWith('http://') || val.startsWith('https://')) return val
+  return `https://p.qlogo.cn/gh/${val}/${val}/0/`
+}
+
+function renderCard(header: string[], row: any[], titleIdx: number, descIdx: number, avatarIdx: number, hideSet: Set<string>, contactSet: Set<string>, tagSet: Set<string>): string {
   const title = titleIdx >= 0 ? String(row[titleIdx] ?? '').trim() : ''
+  const desc = descIdx >= 0 ? String(row[descIdx] ?? '').trim() : ''
+  const avatarVal = avatarIdx >= 0 ? String(row[avatarIdx] ?? '').trim() : ''
+  const avatarUrl = genAvatarUrl(avatarVal)
+  const avatarChar = title ? (title.replace(/[a-zA-Z0-9]/g, '').charAt(0) || title.charAt(0)) : ''
+
+  const LINK_SVG = `<svg class="xlsx-card-link-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M10.86 8.52a3.3 3.3 0 0 0 0-4.66L9.45 2.45a3.3 3.3 0 0 0-4.66 0a3.3 3.3 0 0 0 0 4.66l.47.47a.75.75 0 0 0 1.06-1.06l-.47-.47a1.8 1.8 0 0 1 2.54-2.54l1.41 1.41a1.8 1.8 0 0 1 0 2.54l-.47.47a.75.75 0 1 0 1.06 1.06z"/><path d="M4.67 7.49a3.3 3.3 0 0 0 0 4.66l1.41 1.41a3.3 3.3 0 0 0 4.66 0a3.3 3.3 0 0 0 0-4.66l-.47-.47a.75.75 0 0 0-1.06 1.06l.47.47a1.8 1.8 0 0 1-2.54 2.54l-1.41-1.41a1.8 1.8 0 0 1 0-2.54l.47-.47a.75.75 0 0 0-1.06-1.06z"/></svg>`
+
   let tagHtml = ''
   let infoHtml = ''
 
@@ -75,25 +117,33 @@ function renderCard(header: string[], row: any[], titleIdx: number, hideSet: Set
     const val = String(row[i] ?? '').trim()
     if (!val) continue
     if (i === titleIdx) continue
+    if (i === descIdx) continue
+    if (i === avatarIdx) continue
     if (hideSet.has(header[i])) continue
 
     if (contactSet.has(header[i])) {
       const parts = val.split('\n').filter(Boolean)
-      infoHtml += `<span class="xlsx-info-item">${parts.map(esc).join('、')}</span>\n`
-    } else {
-      const parts = val.split('\n').filter(Boolean)
-      tagHtml += parts.map(v => `<span class="xlsx-badge">${esc(v)}</span>\n`).join('')
+      infoHtml += parts.map(v => `<span class="xlsx-card-link">${LINK_SVG}<span>${esc(v)}</span></span>`).join('')
+    } else if (tagSet.size > 0 ? tagSet.has(header[i]) : true) {
+      const parts = val.split(/[\n,，]/).map(s => s.trim()).filter(Boolean)
+      tagHtml += parts.map(v => `<span class="xlsx-badge">${esc(v)}</span>`).join('')
     }
   }
 
-  const avatarChar = title ? (title.replace(/[a-zA-Z0-9]/g, '').charAt(0) || title.charAt(0)) : ''
+  let infoSection = ''
+  if (infoHtml) {
+    infoSection = `<div class="xlsx-card-info">${infoHtml}</div>`
+  }
 
   return `<div class="xlsx-card">
   <div class="xlsx-card-face">
-    <div class="xlsx-card-avatar">${esc(avatarChar)}</div>
+    ${avatarUrl ? `<img class="xlsx-card-blur-bg" src="${esc(avatarUrl)}" alt="">` : ''}
+    ${avatarUrl ? `<div class="xlsx-card-banner"><img class="xlsx-card-avatar-el" src="${esc(avatarUrl)}" alt=""></div>` : ''}
+    ${!avatarUrl && title ? `<div class="xlsx-card-avatar">${esc(avatarChar)}</div>` : ''}
     <div class="xlsx-card-name">${esc(title)}</div>
+    ${desc ? `<div class="xlsx-card-desc">${esc(desc)}</div>\n` : ''}
     ${tagHtml ? `<div class="xlsx-card-tags">${tagHtml}</div>\n` : ''}
-    ${infoHtml ? `<div class="xlsx-card-info">${infoHtml}</div>\n` : ''}
+    ${infoSection}
   </div>
 </div>\n`
 }
@@ -116,6 +166,9 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
     let keyCols: string[] = []
     let hideCols: string[] = []
     let contactCols: string[] = []
+    let avatarCol: string | null = null
+    let descCol: string | null = null
+    let tagCols: string[] = []
 
     const qIdx = spec.indexOf('?')
     if (qIdx !== -1) {
@@ -129,6 +182,9 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
         if (name === 'key') keyCols = vals
         else if (name === 'hide') hideCols = vals
         else if (name === 'contact') contactCols = vals
+        else if (name === 'avatar') avatarCol = vals[0] || null
+        else if (name === 'desc') descCol = vals[0] || null
+        else if (name === 'tag') tagCols = vals
         else if (name === 'sheet' || name === 'table') targetSheet = vals[0] || null
       }
     }
@@ -140,26 +196,33 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
 
     if (!spec) return `<p ${DANGER}>[xlsx] 未指定文件路径</p>`
 
-    const filePath = resolve(baseDir, spec.replace(/^\//, ''))
-
-    if (!existsSync(filePath)) return `<p ${DANGER}>[xlsx] 文件不存在：${esc(spec)}</p>`
+    const isUrl = spec.startsWith('http://') || spec.startsWith('https://')
 
     try {
-      const wb = XLSX.readFile(filePath)
+      let wb: XLSX.WorkBook
+      if (isUrl) {
+        const buf = syncDownloadFile(spec)
+        if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 下载失败：${esc(spec)}</p>`
+        wb = XLSX.read(buf, { type: 'buffer' })
+      } else {
+        const filePath = resolve(baseDir, spec.replace(/^\//, ''))
+        if (!existsSync(filePath)) return `<p ${DANGER}>[xlsx] 文件不存在：${esc(spec)}</p>`
+        wb = XLSX.readFile(filePath)
+      }
       const names = wb.SheetNames
 
       if (targetSheet) {
         const sheet = wb.Sheets[targetSheet]
         if (!sheet) return `<p ${DANGER}>[xlsx] 工作表 "${esc(targetSheet)}" 不存在（可用：${names.map(esc).join('、')}）</p>`
-        return sheetToHtml(sheet, keyCols, hideCols, contactCols)
+        return sheetToHtml(sheet, keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
       }
 
-      if (names.length === 1) return sheetToHtml(wb.Sheets[names[0]], keyCols, hideCols, contactCols)
+      if (names.length === 1) return sheetToHtml(wb.Sheets[names[0]], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
 
       let out = ''
       for (const name of names) {
         out += `<h3 class="xlsx-sheet-title">${esc(name)}</h3>\n`
-        out += sheetToHtml(wb.Sheets[name], keyCols, hideCols, contactCols)
+        out += sheetToHtml(wb.Sheets[name], keyCols, hideCols, contactCols, avatarCol, descCol, tagCols)
       }
       return out
     } catch (e: any) {
