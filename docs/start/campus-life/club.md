@@ -7,5 +7,5 @@ wordCount: false
 
 <h1 align="center">学生社团</h1>
 
-```xlsx resources\QUT-Organization.xlsx?table=学生社团&key=学生社团名称&contact=联系方式&tag=备注
+```xlsx resources\QUT-Organization.xlsx?table=学生社团&key=业务指导单位&contact=联系方式&tag=备注
 ```
