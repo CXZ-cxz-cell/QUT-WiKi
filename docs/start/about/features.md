@@ -11,23 +11,25 @@
 ### 基本语法
 
 ````markdown
-```xlsx /resources/文件.xlsx?name=卡片名称列&key=分组列1,分组列2&hide=隐藏列1,隐藏列2&contact=联系方式列&avatar=头像列&desc=描述列&tag=标签列
+```xlsx /resources/文件.xlsx name=卡片名称列&key=分组列1,分组列2&hide=隐藏列1,隐藏列2&contact=联系方式列&avatar=头像列&desc=描述列&tag=标签列
 ```
 ````
+
+> 链接和参数之间用**空格**分隔。旧写法 `?` 分隔仍然兼容，但外部链接推荐使用空格以避免与 URL 自身的查询参数冲突。
 
 ### 参数说明
 
 | 参数 | 说明 | 示例 |
 |------|------|------|
-| `?name=A` | 卡片名称列 | `name=学生社团名称` |
-| `&key=B,C` | 分组列，支持多级分组（`h3` 标题）。<br>不填则不分组，所有卡片平铺。 | `key=业务指导单位` |
-| `&hide=D,E` | 隐藏的列（不渲染） | `hide=序号` |
-| `&contact=F,G` | 底部联系方式，每个值前带链接图标 | `contact=联系方式` |
-| `&avatar=H` | 头像列：URL 直接使用，QQ 群号自动拼接 `p.qlogo.cn` 地址 | `avatar=群头像链接` |
-| `&desc=I` | 描述列，显示在名称下方 | `desc=简介` |
-| `&tag=J,K` | 标签列（逗号分隔），指定后**只**渲染这些列为标签；<br>不指定时回退到旧行为：所有非隐藏/非联系列自动变为标签 | `tag=备注` |
-| `&table=Sheet名` | 指定工作表（默认读取第一个） | `table=兴趣群` |
-| `#Sheet名` | 等价于 `table=Sheet名`（写 URL 后面） | `文件.xlsx#兴趣群` |
+| `name=A` | 卡片名称列 | `name=学生社团名称` |
+| `key=B,C` | 分组列，支持多级分组（`h3` 标题）。<br>不填则不分组，所有卡片平铺。 | `key=业务指导单位` |
+| `hide=D,E` | 隐藏的列（不渲染） | `hide=序号` |
+| `contact=F,G` | 底部联系方式，每个值前带链接图标 | `contact=联系方式` |
+| `avatar=H` | 头像列：URL 直接使用，QQ 群号自动拼接 `p.qlogo.cn` 地址 | `avatar=群头像链接` |
+| `desc=I` | 描述列，显示在名称下方 | `desc=简介` |
+| `tag=J,K` | 标签列（逗号分隔），指定后**只**渲染这些列为标签；<br>不指定时回退到旧行为：所有非隐藏/非联系列自动变为标签 | `tag=备注` |
+| `table=Sheet名` | 指定工作表（默认读取第一个） | `table=兴趣群` |
+| `#Sheet名` | 等价于 `table=Sheet名`（写文件路径后面） | `文件.xlsx#兴趣群` |
 
 ### 卡片布局
 
@@ -50,10 +52,12 @@
 fence 路径支持远程 URL，构建时自动下载后解析：
 
 ````markdown
-```xlsx https://example.com/data.xlsx?key=名称&avatar=头像
+```xlsx https://example.com/data.xlsx key=名称&avatar=头像
 ```
 ````
 
+> **推荐使用空格**分隔 URL 和参数，避免与远程 URL 自身的查询参数（如 `?usp=sharing`）冲突。
+>
 > 注意：腾讯文档等在线平台需要公开权限才能直接下载。可使用 `docs/scripts/sync-tencent-docs.mjs` 同步脚本配合 Playwright 从腾讯文档下载。
 
 ---

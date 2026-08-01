@@ -173,10 +173,19 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
     let tagCols: string[] = []
     let nameCol: string | null = null
 
-    const qIdx = spec.indexOf('?')
-    if (qIdx !== -1) {
-      let qs = spec.slice(qIdx + 1)
-      spec = spec.slice(0, qIdx).trim()
+    let qs = ''
+    const spIdx = spec.indexOf(' ')
+    if (spIdx !== -1) {
+      qs = spec.slice(spIdx + 1).trim()
+      spec = spec.slice(0, spIdx).trim()
+    } else {
+      const qIdx = spec.indexOf('?')
+      if (qIdx !== -1) {
+        qs = spec.slice(qIdx + 1)
+        spec = spec.slice(0, qIdx).trim()
+      }
+    }
+    if (qs) {
       for (const p of qs.split('&')) {
         const eqIdx = p.indexOf('=')
         if (eqIdx === -1) continue
