@@ -1,10 +1,12 @@
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
-import { resolve, join } from 'path'
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
+import { resolve, join, dirname } from 'path'
 import { tmpdir } from 'os'
 import { execSync } from 'child_process'
 import XLSX from 'xlsx'
 
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
+const TEN_API = process.env.QUTWIKI_XLSX_API || 'http://sync.wiki.quters.top'
+const CACHE_TTL = 3600000
 
 function esc(s: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }
@@ -30,6 +32,43 @@ function syncDownloadFile(url: string): Buffer | null {
     try { unlinkSync(tmpFile) } catch {}
     try { unlinkSync(scriptFile) } catch {}
   }
+}
+
+function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
+  const match = docUrl.match(/docs\.qq\.com\/sheet\/([A-Za-z0-9]+)/)
+  if (!match) return null
+  const docId = match[1]
+
+  const cacheFile = join(cacheDir, `${docId}.xlsx`)
+  if (existsSync(cacheFile)) {
+    const age = Date.now() - require('fs').statSync(cacheFile).mtimeMs
+    if (age < CACHE_TTL) return readFileSync(cacheFile)
+  }
+
+  const apiUrl = `${TEN_API}/api/xlsx?url=${encodeURIComponent(docUrl)}`
+  const tmpFile = join(tmpdir(), `xlsx_tc_${Date.now()}.xlsx`)
+  const scriptFile = join(tmpdir(), `xlsx_tc_fetch_${Date.now()}.js`)
+  writeFileSync(scriptFile, `
+    require('http').get(${JSON.stringify(apiUrl)}, function (res) {
+      if (res.statusCode !== 200) process.exit(1)
+      var chunks = []
+      res.on('data', function (c) { chunks.push(c) })
+      res.on('end', function () { require('fs').writeFileSync(${JSON.stringify(tmpFile)}, Buffer.concat(chunks)) })
+    }).on('error', function () { process.exit(1) })
+  `)
+  try {
+    execSync(`node "${scriptFile}"`, { timeout: 60000, stdio: 'pipe', windowsHide: true })
+    if (existsSync(tmpFile)) {
+      const buf = readFileSync(tmpFile)
+      mkdirSync(dirname(cacheFile), { recursive: true })
+      writeFileSync(cacheFile, buf)
+      return buf
+    }
+  } catch { } finally {
+    try { unlinkSync(tmpFile) } catch { }
+    try { unlinkSync(scriptFile) } catch { }
+  }
+  return null
 }
 
 function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[], avatarCol: string | null, descCol: string | null, tagCols: string[], nameCol: string | null): string {
@@ -210,13 +249,20 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
     if (!spec) return `<p ${DANGER}>[xlsx] 未指定文件路径</p>`
 
     const isUrl = spec.startsWith('http://') || spec.startsWith('https://')
+    const httpCacheDir = resolve(baseDir, '.http_cache')
 
     try {
       let wb: XLSX.WorkBook
       if (isUrl) {
-        const buf = syncDownloadFile(spec)
-        if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 下载失败：${esc(spec)}</p>`
-        wb = XLSX.read(buf, { type: 'buffer' })
+        if (spec.includes('docs.qq.com/sheet/')) {
+          const buf = syncTencentDoc(spec, httpCacheDir)
+          if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 腾讯文档同步失败，请确保后端服务已启动：<br><code>cd code && npm start</code></p>`
+          wb = XLSX.read(buf, { type: 'buffer' })
+        } else {
+          const buf = syncDownloadFile(spec)
+          if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 下载失败：${esc(spec)}</p>`
+          wb = XLSX.read(buf, { type: 'buffer' })
+        }
       } else {
         const filePath = resolve(baseDir, spec.replace(/^\//, ''))
         if (!existsSync(filePath)) return `<p ${DANGER}>[xlsx] 文件不存在：${esc(spec)}</p>`
