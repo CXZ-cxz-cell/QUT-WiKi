@@ -5,7 +5,7 @@ import { execSync } from 'child_process'
 import XLSX from 'xlsx'
 
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
-const TEN_API = process.env.QUTWIKI_XLSX_API || 'http://sync.wiki.quters.top'
+const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://sync.wiki.quters.top'
 const CACHE_TTL = 3600000
 
 function esc(s: string): string {
@@ -49,7 +49,7 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
   const tmpFile = join(tmpdir(), `xlsx_tc_${Date.now()}.xlsx`)
   const scriptFile = join(tmpdir(), `xlsx_tc_fetch_${Date.now()}.js`)
   writeFileSync(scriptFile, `
-    require('http').get(${JSON.stringify(apiUrl)}, function (res) {
+    require('https').get(${JSON.stringify(apiUrl)}, function (res) {
       if (res.statusCode !== 200) process.exit(1)
       var chunks = []
       res.on('data', function (c) { chunks.push(c) })
