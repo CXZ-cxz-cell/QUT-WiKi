@@ -1,0 +1,10 @@
+{
+  "name": "qutwiki-xlsx-server",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
