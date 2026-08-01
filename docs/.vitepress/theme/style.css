@@ -118,12 +118,13 @@ body::before {
 
 .xlsx-card-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, 240px);
+  justify-content: center;
+  gap: 16px;
 }
 
 .xlsx-card {
-  display: grid;
+  width: 240px;
 }
 
 .xlsx-card-face {
@@ -132,9 +133,10 @@ body::before {
   align-items: center;
   text-align: center;
   gap: 6px;
+  height: 100%;
 
   position: relative;
-  padding: 0 8px 12px;
+  padding: 0 12px 12px;
   overflow: hidden;
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
@@ -174,7 +176,7 @@ body::before {
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--vp-c-bg-soft);
+  border: 3px solid #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
@@ -184,6 +186,7 @@ body::before {
   line-height: 1.5;
   margin-top: 1px;
   padding: 0 4px;
+  word-break: break-word;
 }
 
 .xlsx-card-avatar {
@@ -198,6 +201,7 @@ body::before {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-top: 12px;
 }
 
 .xlsx-card-name {
@@ -205,6 +209,7 @@ body::before {
   font-weight: 600;
   color: var(--vp-c-text-1);
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .xlsx-card-tags {
@@ -223,7 +228,7 @@ body::before {
   border: 1px solid var(--vp-c-tip-soft);
   background: var(--vp-c-tip-soft);
   color: var(--vp-c-tip);
-  white-space: nowrap;
+  word-break: break-word;
   font-weight: 500;
 }
 
@@ -281,39 +286,47 @@ body::before {
   border-top: none;
 }
 
-.page-no-outline .VPContent {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+@media (min-width: 960px) {
+  .page-no-outline .VPContent {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .page-no-outline .VPDoc {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  .page-no-outline .VPDoc .aside {
+    display: none !important;
+  }
+
+  .page-no-outline .VPDoc .container,
+  .page-no-outline .VPDoc .content {
+    margin-left: 24px !important;
+    margin-right: 24px !important;
+    padding-left: 0 !important;
+  }
+
+  .page-no-outline .VPDoc.has-aside .container {
+    max-width: none !important;
+    margin-left: 24px !important;
+    margin-right: 24px !important;
+  }
+
+  .page-no-outline .VPDoc .content-container,
+  .page-no-outline .VPDoc .content-container .vp-doc,
+  .page-no-outline .VPDoc .VPDocFooter {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 }
 
-.page-no-outline .VPDoc {
-  padding-left: 32px !important;
-  padding-right: 32px !important;
-}
-
-.page-no-outline .VPDoc .aside {
-  display: none !important;
-}
-
-.page-no-outline .VPDoc .container,
-.page-no-outline .VPDoc .content {
-  margin-left: 24px !important;
-  margin-right: 24px !important;
-  padding-left: 0 !important;
-}
-
-.page-no-outline .VPDoc.has-aside .container {
-  max-width: none !important;
-  margin-left: 24px !important;
-  margin-right: 24px !important;
-}
-
-.page-no-outline .VPDoc .content-container,
-.page-no-outline .VPDoc .content-container .vp-doc,
-.page-no-outline .VPDoc .VPDocFooter {
-  max-width: none !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+@media (max-width: 959px) {
+  .page-no-outline .VPDoc .aside {
+    display: none !important;
+  }
 }
 
 .VPDocFooter .contributors {
