@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import { tmpdir } from 'os'
 import { execSync } from 'child_process'
@@ -16,12 +16,13 @@ function esc(s: string): string {
 function syncDownloadFile(url: string): Buffer | null {
   const tmpFile = join(tmpdir(), `xlsx_${Date.now()}_${Math.random().toString(36).slice(2)}.xlsx`)
   const scriptFile = join(tmpdir(), `xlsx_dl_${Date.now()}.js`)
-  writeFileSync(scriptFile, `
-    fetch(${JSON.stringify(url)})
-      .then(r => { if (!r.ok) throw new Error(r.status + ' ' + r.statusText); return r.arrayBuffer() })
-      .then(b => require('fs').writeFileSync(${JSON.stringify(tmpFile)}, Buffer.from(b)))
-      .catch(() => process.exit(1))
-  `)
+  writeFileSync(scriptFile, [
+    'var fs=require("fs");',
+    'fetch(' + JSON.stringify(url) + ')',
+    '  .then(function(r) { if(!r.ok) throw new Error(r.status); return r.arrayBuffer() })',
+    '  .then(function(b) { fs.writeFileSync(' + JSON.stringify(tmpFile) + ', Buffer.from(b)) })',
+    '  .catch(function() { process.exit(1) })',
+  ].join('\n'))
   try {
     execSync(`node "${scriptFile}"`, { timeout: 30000, stdio: 'pipe', windowsHide: true })
     const buf = readFileSync(tmpFile)
@@ -41,21 +42,22 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
 
   const cacheFile = join(cacheDir, `${docId}.xlsx`)
   if (existsSync(cacheFile)) {
-    const age = Date.now() - require('fs').statSync(cacheFile).mtimeMs
+    const age = Date.now() - statSync(cacheFile).mtimeMs
     if (age < CACHE_TTL) return readFileSync(cacheFile)
   }
 
   const apiUrl = `${TEN_API}/api/xlsx?url=${encodeURIComponent(docUrl)}`
   const tmpFile = join(tmpdir(), `xlsx_tc_${Date.now()}.xlsx`)
   const scriptFile = join(tmpdir(), `xlsx_tc_fetch_${Date.now()}.js`)
-  writeFileSync(scriptFile, `
-    require('https').get(${JSON.stringify(apiUrl)}, function (res) {
-      if (res.statusCode !== 200) process.exit(1)
-      var chunks = []
-      res.on('data', function (c) { chunks.push(c) })
-      res.on('end', function () { require('fs').writeFileSync(${JSON.stringify(tmpFile)}, Buffer.concat(chunks)) })
-    }).on('error', function () { process.exit(1) })
-  `)
+  writeFileSync(scriptFile, [
+    'var fs=require("fs");var https=require("https");',
+    'https.get(' + JSON.stringify(apiUrl) + ', function(res) {',
+    '  if(res.statusCode!==200) process.exit(1);',
+    '  var chunks=[];',
+    '  res.on("data",function(c){chunks.push(c)});',
+    '  res.on("end",function(){fs.writeFileSync(' + JSON.stringify(tmpFile) + ',Buffer.concat(chunks))});',
+    '}).on("error",function(){process.exit(1)});',
+  ].join('\n'))
   try {
     execSync(`node "${scriptFile}"`, { timeout: 60000, stdio: 'pipe', windowsHide: true })
     if (existsSync(tmpFile)) {
