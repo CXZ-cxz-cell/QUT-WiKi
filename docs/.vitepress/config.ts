@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'fs'
 import { resolve, extname, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import taskLists from 'markdown-it-task-lists'
+import { xlsxTablePlugin } from './plugins/xlsx-table'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
@@ -14,6 +15,7 @@ const directoryLabels: Record<string, string> = {
   preface: '序言',
   newstudent: '新生入学',
   'campus-life': '校园生活',
+  'campus-life/competition': '竞赛--战队',
   about: '关于',
 }
 // 顶层分组的展示顺序，未列出的目录排在最后并按名称排序。
@@ -31,8 +33,18 @@ function getDirectoryLabel(relativeDir: string): string {
 }
 
 // 读取 Markdown 的一级标题，跳过代码块内的伪标题。
+// 优先使用 frontmatter 中的 title，其次 # 标题，最后 <h1> 标签
 function extractTitle(file: string): string {
-  const lines = readFileSync(file, 'utf-8').split(/\r?\n/)
+  const raw = readFileSync(file, 'utf-8')
+
+  // 检查 frontmatter title
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/)
+  if (fmMatch) {
+    const titleMatch = fmMatch[1].match(/^title:\s*(.+)$/m)
+    if (titleMatch) return titleMatch[1].trim().replace(/^["'](.+)["']$/, '$1')
+  }
+
+  const lines = raw.split(/\r?\n/)
   let fence: string | null = null
   for (const line of lines) {
     const fenceMatch = line.match(/^\s*(`{3,}|~{3,})/)
@@ -45,9 +57,37 @@ function extractTitle(file: string): string {
     if (fence === null) {
       const heading = line.match(/^#(?!#)\s+(.+?)\s*$/)
       if (heading) return heading[1].replace(/\s+#+\s*$/, '').trim()
+      const h1 = line.match(/<h1[^>]*>(.+?)<\/h1>/i)
+      if (h1) return h1[1].trim()
     }
   }
   throw new Error(`Markdown 文件缺少一级标题：${file}`)
+}
+
+function extractTop(file: string): number | null {
+  const raw = readFileSync(file, 'utf-8')
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/)
+  if (!fmMatch) return null
+
+  const topMatch = fmMatch[1].match(/^top:\s*(.+)$/m)
+  if (!topMatch) return null
+
+  const value = Number(topMatch[1].trim().replace(/^["'](.+)["']$/, '$1'))
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`Markdown 文件的 top 必须是从 1 开始的整数：${file}`)
+  }
+  return value
+}
+
+function sortMarkdownFiles<T extends { name: string, full: string, stat: ReturnType<typeof statSync> }>(a: T, b: T): number {
+  const topA = extractTop(a.full)
+  const topB = extractTop(b.full)
+  if (topA !== null || topB !== null) {
+    if (topA === null) return 1
+    if (topB === null) return -1
+    return topA - topB || a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name)
+  }
+  return a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name)
 }
 
 function hasMarkdown(dir: string): boolean {
@@ -63,7 +103,7 @@ function hasMarkdown(dir: string): boolean {
   return false
 }
 
-// 目录内的条目：文件按创建时间从早到晚排序，子目录按名称排序并递归成组。
+// 目录内的条目：文件可用 frontmatter top 置顶排序，否则按创建时间从早到晚排序；子目录按名称排序并递归成组。
 function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[] {
   const entries = readdirSync(dir).map((name) => {
     const full = join(dir, name)
@@ -74,7 +114,7 @@ function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[
 
   const files = entries
     .filter((e) => e.stat.isFile() && extname(e.name) === '.md')
-    .sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name))
+    .sort(sortMarkdownFiles)
   for (const file of files) {
     const base = file.name.replace(/\.md$/, '')
     const link = relativeDir ? `/start/${relativeDir}/${base}` : `/start/${base}`
@@ -107,7 +147,7 @@ function buildStartSidebar(): DefaultTheme.SidebarItem[] {
 
   const rootFiles = entries
     .filter((e) => e.stat.isFile() && extname(e.name) === '.md')
-    .sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name))
+    .sort(sortMarkdownFiles)
   for (const file of rootFiles) {
     groups.push({ text: extractTitle(file.full), link: `/start/${file.name.replace(/\.md$/, '')}` })
   }
@@ -201,7 +241,9 @@ export default defineConfig({
   markdown: {
     config: (md) => {
       md.use(taskLists)
+      md.use(xlsxTablePlugin, docsRoot)
       md.core.ruler.push('word_count', (state) => {
+        if ((state.env as any).frontmatter?.wordCount === false) return
         const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
         const count = text.length
         if (count === 0) return

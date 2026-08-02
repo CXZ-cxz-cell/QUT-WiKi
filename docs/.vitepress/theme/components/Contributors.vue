@@ -11,7 +11,20 @@ const contributors = computed(() => {
   return contributorsData[path] || []
 })
 
+const lastUpdated = computed(() => {
+  const ts = page.value?.lastUpdated
+  if (!ts) return ''
+  const d = new Date(ts)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${day} ${h}:${min}`
+})
+
 function avatarUrl(contributor) {
+  if (contributor.avatar) return contributor.avatar
   if (contributor.github) {
     return `https://github.com/${contributor.github}.png?size=40`
   }
@@ -38,31 +51,33 @@ function hue(name) {
 <template>
   <div v-if="contributors.length" class="contributors">
     <h3 class="contributors-title">本文贡献者</h3>
-    <div class="contributors-list">
-      <a
-        v-for="c in contributors"
-        :key="c.email"
-        class="contributor-item"
-        :href="c.github ? `https://github.com/${c.github}` : undefined"
-        :target="c.github ? '_blank' : undefined"
-        :rel="c.github ? 'noopener noreferrer' : undefined"
-        :title="`${c.name}（${c.commits} 次提交）`"
-      >
-        <img
-          v-if="avatarUrl(c)"
-          :src="avatarUrl(c)"
-          :alt="c.name"
-          class="contributor-avatar"
-          loading="lazy"
-        />
-        <span
-          v-else
-          class="contributor-avatar contributor-avatar-text"
-          :style="{ background: `hsl(${hue(c.name)}, 50%, 50%)` }"
-        >{{ initials(c.name) }}</span>
-        <span class="contributor-name">{{ c.name }}</span>
-        <span class="contributor-commits">{{ c.commits }}</span>
-      </a>
+    <div class="contributors-row">
+      <div class="contributors-list">
+        <a
+          v-for="c in contributors"
+          :key="c.email"
+          class="contributor-item"
+          :href="c.github ? `https://github.com/${c.github}` : undefined"
+          :target="c.github ? '_blank' : undefined"
+          :rel="c.github ? 'noopener noreferrer' : undefined"
+          :title="c.name"
+        >
+          <img
+            v-if="avatarUrl(c)"
+            :src="avatarUrl(c)"
+            :alt="c.name"
+            class="contributor-avatar"
+            loading="lazy"
+          />
+          <span
+            v-else
+            class="contributor-avatar contributor-avatar-text"
+            :style="{ background: `hsl(${hue(c.name)}, 50%, 50%)` }"
+          >{{ initials(c.name) }}</span>
+          <span class="contributor-name">{{ c.name }}</span>
+        </a>
+      </div>
+      <span v-if="lastUpdated" class="contributors-date">更新于：{{ lastUpdated }}</span>
     </div>
   </div>
 </template>
@@ -81,10 +96,25 @@ function hue(name) {
   margin: 0 0 10px;
 }
 
+.contributors-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .contributors-list {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.contributors-date {
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .contributor-item {

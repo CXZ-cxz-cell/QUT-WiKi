@@ -12,6 +12,16 @@ try {
         throw "站点构建失败，npm 退出代码：$LASTEXITCODE"
     }
 
+    # 清理占用 5173 端口的旧进程
+    $portLine = netstat -ano | Select-String ':5173' | Select-String 'LISTENING' | Select-Object -First 1
+    if ($portLine) {
+        $pid5173 = ($portLine.ToString().Trim() -split '\s+')[-1]
+        if ($pid5173) {
+            Stop-Process -Id $pid5173 -Force -ErrorAction SilentlyContinue
+            Start-Sleep 1
+        }
+    }
+
     & npm.cmd run dev -- --port 5173 --strictPort
     if ($LASTEXITCODE -ne 0) {
         throw "开发服务器异常退出，npm 退出代码：$LASTEXITCODE"

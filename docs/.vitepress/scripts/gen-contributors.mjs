@@ -65,11 +65,22 @@ function getContributors(relPath) {
       .map(c => {
         const emails = [...c.emails.keys()]
         let github = resolveGitHub(emails, c.name)
+        let avatar
         if (!github) {
           const lowerEmails = emails.map(e => e.toLowerCase())
-          for (const [key, gh] of Object.entries(mapping)) {
-            if (lowerEmails.includes(key.toLowerCase()) || c.name.toLowerCase() === key.toLowerCase()) {
-              github = gh
+          for (const [key, val] of Object.entries(mapping)) {
+            const mappedGithub = typeof val === 'object' && val !== null ? val.github : val
+            if (
+              lowerEmails.includes(key.toLowerCase()) ||
+              c.name.toLowerCase() === key.toLowerCase() ||
+              (mappedGithub && c.name.toLowerCase() === String(mappedGithub).toLowerCase())
+            ) {
+              if (typeof val === 'object' && val !== null) {
+                github = val.github
+                avatar = val.avatar
+              } else {
+                github = val
+              }
               break
             }
           }
@@ -78,12 +89,155 @@ function getContributors(relPath) {
           name: c.name,
           email: c.firstEmail,
           github,
+          avatar,
           commits: c.total,
         }
       })
   } catch {
     return []
   }
+}
+
+function parseInlineContributor(value) {
+  const text = value.trim().replace(/^['"]|['"]$/g, '')
+  if (!text) return null
+  if (text.startsWith('@')) return { name: text.slice(1), github: text.slice(1), commits: 0 }
+  return { name: text, commits: 0 }
+}
+
+function normalizeManualContributor(item) {
+  if (!item || !item.name) return null
+  const contributor = {
+    name: String(item.name).trim(),
+    commits: 0,
+  }
+  if (!contributor.name) return null
+  if (item.email) contributor.email = String(item.email).trim()
+  if (item.github) contributor.github = String(item.github).trim().replace(/^@/, '')
+  if (item.avatar) contributor.avatar = String(item.avatar).trim()
+  return contributor
+}
+
+function parseContributorObject(lines, start) {
+  const item = {}
+  let index = start
+  for (; index < lines.length; index++) {
+    const line = lines[index]
+    if (!/^\s{4,}\S/.test(line)) break
+    const match = line.trim().match(/^(name|email|github|avatar):\s*(.+)$/)
+    if (match) item[match[1]] = match[2].trim().replace(/^['"]|['"]$/g, '')
+  }
+  return { item, contributor: normalizeManualContributor(item), nextIndex: index }
+}
+
+function getManualContributors(filePath) {
+  let raw
+  try {
+    raw = readFileSync(filePath, 'utf-8')
+  } catch {
+    return []
+  }
+
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/)
+  if (!fmMatch) return []
+
+  const lines = fmMatch[1].split(/\r?\n/)
+  const contributors = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const field = line.match(/^contributors:\s*(.*)$/)
+    if (!field) continue
+
+    const inline = field[1].trim()
+    if (inline) {
+      if (inline.startsWith('[') && inline.endsWith(']')) {
+        const items = inline.slice(1, -1).split(',').map(parseInlineContributor).filter(Boolean)
+        contributors.push(...items)
+      } else {
+        const contributor = parseInlineContributor(inline)
+        if (contributor) contributors.push(contributor)
+      }
+      break
+    }
+
+    for (i += 1; i < lines.length; i++) {
+      const item = lines[i].match(/^\s{2}-\s*(.*)$/)
+      if (!item) {
+        if (/^\S/.test(lines[i])) i--
+        break
+      }
+
+      const value = item[1].trim()
+      if (!value) {
+        const parsed = parseContributorObject(lines, i + 1)
+        if (parsed.contributor) contributors.push(parsed.contributor)
+        i = parsed.nextIndex - 1
+        continue
+      }
+
+      const pair = value.match(/^(name|email|github|avatar):\s*(.+)$/)
+      if (pair) {
+        const itemObject = { [pair[1]]: pair[2].trim().replace(/^['"]|['"]$/g, '') }
+        const parsed = parseContributorObject(lines, i + 1)
+        Object.assign(itemObject, parsed.item)
+        const contributor = normalizeManualContributor(itemObject)
+        if (contributor) contributors.push(contributor)
+        i = parsed.nextIndex - 1
+      } else {
+        const contributor = parseInlineContributor(value)
+        if (contributor) contributors.push(contributor)
+      }
+    }
+    break
+  }
+
+  return contributors.map((contributor) => {
+    if (!contributor.github && contributor.name.startsWith('@')) {
+      contributor.github = contributor.name.slice(1)
+      contributor.name = contributor.github
+    }
+
+    const mapped = mapping[contributor.email] || mapping[contributor.name] || mapping[contributor.github]
+    if (mapped) {
+      if (typeof mapped === 'object') {
+        contributor.github ||= mapped.github
+        contributor.avatar ||= mapped.avatar
+      } else {
+        contributor.github ||= mapped
+      }
+    }
+
+    return contributor
+  })
+}
+
+function contributorKey(contributor) {
+  return (contributor.github || contributor.email || contributor.name).toLowerCase()
+}
+
+function mergeContributors(gitContributors, manualContributors) {
+  const map = new Map()
+  for (const contributor of gitContributors) {
+    map.set(contributorKey(contributor), contributor)
+  }
+  for (const contributor of manualContributors) {
+    const key = contributorKey(contributor)
+    const existing = map.get(key)
+    if (existing) {
+      map.set(key, {
+        ...existing,
+        ...contributor,
+        email: contributor.email || existing.email,
+        github: contributor.github || existing.github,
+        avatar: contributor.avatar || existing.avatar,
+        commits: existing.commits || contributor.commits || 0,
+      })
+    } else {
+      map.set(key, contributor)
+    }
+  }
+  return Array.from(map.values())
 }
 
 function loadMapping() {
@@ -118,7 +272,10 @@ function main() {
 
   for (const file of files) {
     const gitPath = `${docsRelToRoot}/${file}`
-    const contributors = getContributors(gitPath)
+    const contributors = mergeContributors(
+      getContributors(gitPath),
+      getManualContributors(resolve(docsDir, file))
+    )
     if (contributors.length > 0) {
       result[file] = contributors
     }
