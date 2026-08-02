@@ -1,3 +1,10 @@
+---
+top: 12
+contributors:
+  - name: 黎蛰
+    avatar: https://pic1.imgdb.cn/i/033zzgyXaoNhqfbogN34rr.webp
+---
+
 # 综测
 
 > 保研/评优/评奖看综测，大约 70% 来自绩点
