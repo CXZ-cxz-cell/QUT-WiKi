@@ -144,6 +144,16 @@ function genAvatarUrl(val: string): string {
   return `https://p.qlogo.cn/gh/${val}/${val}/0/`
 }
 
+function renderContact(header: string, value: string, icon: string): string {
+  const parts = value.split(/(\d+)/).filter(Boolean)
+  const html = parts.map((part) => {
+    if (!/^\d+$/.test(part)) return `<span>${esc(part)}</span>`
+    const label = `${header}：${part}`
+    return `<button class="xlsx-card-link" type="button" data-copy="${esc(part)}" data-tip="" title="点击复制${esc(label)}" onclick="navigator.clipboard.writeText(this.dataset.copy || '').then(() => { this.dataset.tip = '复制成功'; window.setTimeout(() => { this.dataset.tip = '' }, 1200) })">${icon}<span>${esc(part)}</span></button>`
+  }).join('')
+  return `<span class="xlsx-card-contact">${html}</span>`
+}
+
 function renderCard(header: string[], row: any[], titleIdx: number, descIdx: number, avatarIdx: number, hideSet: Set<string>, contactSet: Set<string>, tagSet: Set<string>): string {
   const title = titleIdx >= 0 ? String(row[titleIdx] ?? '').trim() : ''
   const desc = descIdx >= 0 ? String(row[descIdx] ?? '').trim() : ''
@@ -165,8 +175,8 @@ function renderCard(header: string[], row: any[], titleIdx: number, descIdx: num
     if (hideSet.has(header[i])) continue
 
     if (contactSet.has(header[i])) {
-      const parts = val.split('\n').filter(Boolean)
-      infoHtml += parts.map(v => `<span class="xlsx-card-link">${LINK_SVG}<span>${esc(v)}</span></span>`).join('')
+      const parts = val.split(/[\n|｜]/).map(s => s.trim()).filter(Boolean)
+      infoHtml += parts.map(v => renderContact(header[i], v, LINK_SVG)).join('')
     } else if (tagSet.size > 0 ? tagSet.has(header[i]) : true) {
       const parts = val.split(/[\n,，]/).map(s => s.trim()).filter(Boolean)
       tagHtml += parts.map(v => `<span class="xlsx-badge">${esc(v)}</span>`).join('')
