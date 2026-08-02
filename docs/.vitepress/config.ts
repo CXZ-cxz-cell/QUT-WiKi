@@ -15,7 +15,7 @@ const directoryLabels: Record<string, string> = {
   preface: '序言',
   newstudent: '新生入学',
   'campus-life': '校园生活',
-  'campus-life/qutrobot': '青理工机器人战队',
+  'campus-life/competition': '竞赛--战队',
   about: '关于',
 }
 // 顶层分组的展示顺序，未列出的目录排在最后并按名称排序。

@@ -16,10 +16,10 @@
 
 <Gallery>
 
-![机器人在ROBOCON比赛现场](/images/qutrobot/robocon-2026-robot.jpg)
-![战队成员在比赛现场助威](/images/qutrobot/robocon-2026-supporters.jpg)
-![战队成员在比赛现场操作机器人](/images/qutrobot/robocon-2026-match.jpg)
-![沧溟机器人战队赛后合影](/images/qutrobot/robocon-2026-team.jpg)
+![机器人在ROBOCON比赛现场](https://pic1.imgdb.cn/i/03406LflpQb675VaRc3uTA.webp)
+![战队成员在比赛现场助威](https://pic1.imgdb.cn/i/03406M00ytkl4zY82Qa7N9.webp)
+![战队成员在比赛现场操作机器人](https://pic1.imgdb.cn/i/03406M38xslZNZlaSHi9wE.webp)
+![沧溟机器人战队赛后合影](https://pic1.imgdb.cn/i/03406M6j1YGmPHDI7srm5d.webp)
 
 </Gallery>
 
@@ -117,7 +117,7 @@
 ::: details 点击查看2026年度纳新QQ群二维码
 
 <div align="center">
-  <img src="/images/qutrobot/recruitment-qq-2026.jpg" alt="2026年度沧溟机器人战队纳新QQ群二维码" width="420">
+  <img src="https://pic1.imgdb.cn/i/03406M9SdueezeUeQKm73p.webp" alt="2026年度沧溟机器人战队纳新QQ群二维码" width="420">
 </div>
 
 :::
