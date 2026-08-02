@@ -41,129 +41,185 @@ function fromCache(key) {
   return readFileSync(file)
 }
 
-function extractStrings(buf) {
-  const text = buf.toString('utf8')
-  const re = /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffefa-zA-Z0-9\.\-\+\:\/]{2,}/g
-  return [...new Set(text.match(re) || [])]
+function readVarint(buf, pos) {
+  let v = 0, shift = 0
+  while (pos < buf.length) {
+    const b = buf[pos++]
+    v |= (b & 0x7f) << shift
+    if (!(b & 0x80)) break
+    shift += 7
+  }
+  return { value: v >>> 0, pos }
+}
+
+function collectStrings(buf) {
+  const result = []
+  let pos = 0
+  while (pos < buf.length - 1) {
+    try {
+      const tag = readVarint(buf, pos)
+      pos = tag.pos
+      const wt = tag.value & 7
+      if (wt === 0) {
+        pos = readVarint(buf, pos).pos
+      } else if (wt === 2) {
+        const len = readVarint(buf, pos)
+        pos = len.pos
+        if (len.value > 0 && len.value < 5000 && pos + len.value <= buf.length) {
+          const part = buf.slice(pos, pos + len.value)
+          const str = part.toString('utf8')
+          // Only keep strings that look like readable text (not binary garbage)
+          if (str.length >= 1 && str.length <= 200) {
+            const clean = str.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]/g, '')
+            if (clean.length > 0 && clean.length === str.length) {
+              result.push(clean)
+            }
+          }
+        }
+        pos += len.value
+      } else if (wt === 1) { pos += 8 }
+      else if (wt === 5) { pos += 4 }
+      else { break }
+    } catch { break }
+  }
+  return result
 }
 
 function parseSheetData(raw) {
-  // response format: key, text, len, value (4 lines per entry)
   const lines = raw.split(/\r?\n/)
-  const strings = []
+  const chunkMap = new Map()
   for (let i = 0; i + 3 < lines.length; i += 4) {
     const key = lines[i]
-    if (!key || !key.startsWith('chunk_')) continue
-    // skip workbook chunk (just metadata)
-    if (key === 'chunk_workbook') continue
+    if (!key || !key.startsWith('chunk_') || key === 'chunk_workbook') continue
     const b64 = lines[i + 3]
     if (!b64) continue
     try {
       const decompressed = inflateSync(Buffer.from(b64, 'base64'))
-      const strs = extractStrings(decompressed)
-      strings.push({ key, strs })
+      const strs = collectStrings(decompressed)
+      if (strs.length > 0) chunkMap.set(key, strs)
     } catch { }
   }
-  return strings
+  return chunkMap
 }
 
-function filterMeta(strs) {
-  const meta = new Set([
-    '3.0.0', 'ZB', 's4', 'q3', 'b2',
-    'code', 'QUTWiKi', 'docs', 'resources',
-    'href', 'https', 'http',
-  ])
-  return strs.filter(s =>
-    !meta.has(s) &&
-    !/^[0-9A-Fa-f]{6,}$/.test(s) &&
-    !/^[0-9]+$/.test(s) &&
-    !/^[a-f0-9]{8,}-[a-f0-9]{4,}/.test(s) &&
-    !s.includes('outlook.com') &&
-    !s.includes('qun.qq.com')
-  )
+function isMetaString(s) {
+  if (s === '3.0.0') return true
+  if (/^[A-Z]{1,3}$/.test(s)) return true // ZB, MV, UI etc
+  if (/^[a-z]\d+$/.test(s)) return true  // s4, q3, b2
+  if (/^[0-9A-Fa-f]{6,8}$/.test(s)) return true // color codes
+  if (/^[0-9]+$/.test(s)) return true // pure numbers
+  if (/^[a-f0-9]{8,}-[a-f0-9]{4,}-/.test(s)) return true // UUID
+  if (s.includes('outlook.com') || s.includes('qun.qq.com')) return true
+  if (s === 'href' || s === 'https' || s === 'http') return true
+  return false
 }
 
-function buildWorkbook(chunks, targetSheet) {
+function trySheetName(strs) {
+  const knownSheets = ['兴趣群', '实验室', '学生社团', '填写说明']
+  for (const s of strs) {
+    if (knownSheets.includes(s)) return s
+  }
+  return null
+}
+
+function mergeChunks(chunkMap) {
+  // Group chunks by sheet prefix (e.g. chunk_000001_*)
+  const groups = new Map()
+  for (const [key, strs] of chunkMap) {
+    const m = key.match(/^chunk_(\w+)_/)
+    if (!m) continue
+    const prefix = m[1]
+    if (!groups.has(prefix)) groups.set(prefix, [])
+    groups.get(prefix).push(...strs)
+  }
+  return groups
+}
+
+function buildWorkbook(chunkMap) {
   const wb = XLSX.utils.book_new()
-  const chunkNames = chunks.map(c => c.key).join(', ')
-  log(`  数据块：${chunkNames}`)
+  const groups = mergeChunks(chunkMap)
 
-  for (const { key, strs } of chunks) {
-    const cleaned = filterMeta(strs)
-    if (cleaned.length === 0) continue
+  for (const [prefix, rawStrs] of groups) {
+    // Filter metadata and deduplicate while preserving order
+    const seen = new Set()
+    const strs = []
+    for (const s of rawStrs) {
+      if (isMetaString(s)) continue
+      if (seen.has(s)) continue
+      seen.add(s)
+      strs.push(s)
+    }
+    if (strs.length < 3) continue
 
-    // First match to sheet name
-    const sheetNameMatch = key.match(/chunk_([a-zA-Z0-9]+)_/)
-    const sheetId = sheetNameMatch ? sheetNameMatch[1] : 'unknown'
+    // Find sheet name (skip first if it's a known sheet name)
+    const sheetName = trySheetName(strs)
+    const dataStrs = sheetName ? strs.slice(strs.indexOf(sheetName) + 1) : strs
 
-    // Find headers: consecutive meaningful strings at the start
+    // Find headers: longest consecutive run of strings that look like column headers
+    // (CJK or meaningful text, before the first non-matching string)
     const headers = []
     let headerEnd = 0
-    for (let i = 0; i < cleaned.length; i++) {
-      const s = cleaned[i]
-      if (s === sheetId) continue
-      if (/^[\u4e00-\u9fff]/.test(s) && headers.length < 20) {
+    for (let i = 0; i < dataStrs.length; i++) {
+      const s = dataStrs[i]
+      // Column headers are typically short CJK strings (2-10 chars)
+      if (/^[\u4e00-\u9fff]{2,12}$/.test(s) && headers.length < 30) {
         headers.push(s)
         headerEnd = i + 1
-      } else if (headers.length > 0) {
+      } else if (headers.length >= 2) {
         break
+      } else {
+        headers.length = 0
+        headerEnd = 0
       }
     }
 
     if (headers.length === 0) continue
 
-    // Remaining strings after headers are cell values
-    const values = cleaned.slice(headerEnd)
-    log(`  「${headers[0]}」${headers.length} 列，${values.length} 个值`)
+    // Combine remaining strings as cell values
+    const values = dataStrs.slice(headerEnd)
+    // Filter values that are clearly not cell data
+    const cellValues = values.filter(s => !isMetaString(s) && !/^[A-Za-z][:；]/.test(s))
+
+    log(`  「${sheetName || headers[0]}」${headers.length} 列，${cellValues.length} 个值`)
 
     // Build rows
     const rows = [headers]
     let row = []
-    for (const v of values) {
+    for (const v of cellValues) {
       row.push(v)
       if (row.length === headers.length) {
         rows.push(row)
         row = []
       }
     }
-    if (row.length > 0) rows.push(row)
+    if (row.length > 0 && row.some(v => v)) rows.push(row)
 
     const ws = XLSX.utils.aoa_to_sheet(rows)
-    const name = targetSheet || headers[0] || sheetId
+    const name = sheetName || headers[0] || prefix
     XLSX.utils.book_append_sheet(wb, ws, name)
   }
   return wb
 }
 
 async function syncSheets(docUrl) {
-  // Extract doc ID
   const m = docUrl.match(/docs\.qq\.com\/sheet\/([A-Za-z0-9]+)/)
   if (!m) throw new Error('无法解析文档 ID')
   const docId = m[1]
 
-  // Get tab parameter from URL
   const tabMatch = docUrl.match(/[?&]tab=(\w+)/)
   const tab = tabMatch ? tabMatch[1] : ''
 
   log(`文档 ID: ${docId}` + (tab ? `，工作表: ${tab}` : ''))
 
-  // Step 1: Get sheet list via opendoc API
-  log('获取工作表列表...')
-  const openUrl = `https://docs.qq.com/dop-api/opendoc?id=${docId}&normal=1&outformat=1&wb=1&nowb=0` + (tab ? `&tab=${tab}` : '')
-  const openRaw = await fetch(openUrl)
-  const openJson = JSON.parse(openRaw)
-
-  // Step 2: Get sheet data
   log('获取表格数据...')
   const dataUrl = `https://docs.qq.com/dop-api/sheet/data?id=${docId}` + (tab ? `&tab=${tab}` : '')
   const sheetRaw = await fetch(dataUrl)
 
-  // Step 3: Parse chunks
-  const chunks = parseSheetData(sheetRaw)
-  if (chunks.length === 0) throw new Error('未找到有效数据块')
+  const chunkMap = parseSheetData(sheetRaw)
+  if (chunkMap.size === 0) throw new Error('未找到有效数据块')
 
-  // Step 4: Build workbook
-  return buildWorkbook(chunks, '')
+  log(`发现 ${chunkMap.size} 个数据块`)
+  return buildWorkbook(chunkMap)
 }
 
 function json(res, data, code = 200) {
