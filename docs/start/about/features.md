@@ -120,6 +120,29 @@ cd code && npm start
 
 无需手动配置，每次 `npm run build` 或 `npm run dev` 自动执行。
 
+如需为资料整理、线下供稿等非 Git 提交者额外署名，可在 Markdown frontmatter 中添加 `contributors`：
+
+```yaml
+---
+contributors:
+  - name: 张三
+  - name: Li Si
+    github: lisi
+  - name: 王五
+    avatar: https://example.com/avatar.png
+---
+```
+
+简写 GitHub 用户名时也可以使用：
+
+```yaml
+---
+contributors: ['@lisi', 张三]
+---
+```
+
+手动填写的贡献者会与 Git 贡献者合并展示。
+
 关联配置：
 - `docs/.vitepress/contributors-mapping.json`——手动映射邮箱到 GitHub 用户名
 
@@ -132,12 +155,15 @@ QUTWiKi 在 VitePress 原生 frontmatter 之外新增以下配置项：
 ```yaml
 ---
 wordCount: false
+contributors:
+  - name: 张三
 ---
 ```
 
 | 配置项 | 类型 | 默认 | 说明 |
 |--------|------|------|------|
 | `wordCount` | boolean | `true` | `false` 关闭字数统计与阅读时间 |
+| `contributors` | array/string | 自动读取 Git 提交者 | 额外添加本文贡献者，支持姓名、GitHub 用户名和头像 |
 
 ---
 
