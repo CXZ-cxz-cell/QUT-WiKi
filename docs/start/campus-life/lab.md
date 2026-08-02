@@ -8,5 +8,5 @@ wordCount: false
 
 <h1 align="center">实验室</h1>
 
-```xlsx resources\QUT-Organization.xlsx?table=实验室&name=名称&contact=联系方式&avatar=群头像链接&tag=备注&desc=简介
+```xlsx https://docs.qq.com/sheet/DSE9ZcUd3dFhpVmVm?tab=000003 table=实验室&name=名称&contact=联系方式&avatar=群头像链接&tag=备注&desc=简介
 ```

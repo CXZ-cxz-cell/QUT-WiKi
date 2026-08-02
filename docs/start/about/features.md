@@ -71,17 +71,19 @@ fence 路径支持远程 `.xlsx` 文件的直链 URL，构建时自动下载后�
 腾讯文档（`docs.qq.com`）等在线表格平台**不提供直接下载链接**，需通过后端同步服务中转：
 
 ```
-markdown 在线链接 → 插件 → 后端 API → Playwright 同步 → 回传 xlsx → 本地缓存
+markdown 在线链接 → 插件 → 后端 API → Chromium 同步 → 回传 xlsx → 本地缓存
 ```
 
 **启动后端**（在服务器上）：
 
 ```bash
-cd code && npm start
+cd code
+npm install
+npm start
 # 默认监听 http://localhost:3456
 ```
 
-启动后，markdown 中直接填写腾讯文档分享链接即可，构建时自动同步到本地 `docs/.http_cache/`，后续构建优先读缓存。
+`npm install` 会一并准备 Chromium 及 Linux 运行依赖。启动后，markdown 中直接填写腾讯文档分享链接即可，构建时自动同步到本地 `docs/.http_cache/`，后续构建优先读缓存。
 
 环境变量 `QUTWIKI_XLSX_API` 可指定后端地址，用于服务器部署场景。
 
