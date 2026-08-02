@@ -135,6 +135,15 @@ contributors:
 ---
 ```
 
+每个贡献者支持以下参数：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 是 | 展示名称，也会用于匹配 `contributors-mapping.json` |
+| `github` | string | 否 | GitHub 用户名，可写 `lisi` 或 `@lisi` |
+| `email` | string | 否 | Git 邮箱，也会用于匹配 `contributors-mapping.json` |
+| `avatar` | string | 否 | 自定义头像地址，优先级高于 GitHub 头像 |
+
 简写 GitHub 用户名时也可以使用：
 
 ```yaml
@@ -143,7 +152,26 @@ contributors: ['@lisi', 张三]
 ---
 ```
 
-手动填写的贡献者会与 Git 贡献者合并展示。
+手动填写的贡献者会与 Git 贡献者合并展示。若额外贡献者与 Git 自动识别结果指向同一人，会优先使用 frontmatter 中填写的 `name`、`avatar`、`github` 等展示信息，并隐藏重复的 Git 自动识别结果。
+
+如果额外贡献者未填写 `github` 或 `avatar`，会尝试通过 `docs/.vitepress/contributors-mapping.json` 按 `name`、`email` 或 `github` 补全。例如：
+
+```json
+{
+  "黎蛰": { "github": "wodeshouji", "avatar": "https://example.com/avatar.webp" }
+}
+```
+
+此时文章只需写：
+
+```yaml
+---
+contributors:
+  - name: 黎蛰
+---
+```
+
+最终会展示为 `黎蛰`，链接到 GitHub 用户 `wodeshouji`，并使用映射中的头像。
 
 关联配置：
 - `docs/.vitepress/contributors-mapping.json`——手动映射邮箱到 GitHub 用户名
