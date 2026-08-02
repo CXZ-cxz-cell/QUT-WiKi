@@ -63,6 +63,32 @@ function extractTitle(file: string): string {
   throw new Error(`Markdown 文件缺少一级标题：${file}`)
 }
 
+function extractTop(file: string): number | null {
+  const raw = readFileSync(file, 'utf-8')
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---/)
+  if (!fmMatch) return null
+
+  const topMatch = fmMatch[1].match(/^top:\s*(.+)$/m)
+  if (!topMatch) return null
+
+  const value = Number(topMatch[1].trim().replace(/^["'](.+)["']$/, '$1'))
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`Markdown 文件的 top 必须是从 1 开始的整数：${file}`)
+  }
+  return value
+}
+
+function sortMarkdownFiles<T extends { name: string, full: string, stat: ReturnType<typeof statSync> }>(a: T, b: T): number {
+  const topA = extractTop(a.full)
+  const topB = extractTop(b.full)
+  if (topA !== null || topB !== null) {
+    if (topA === null) return 1
+    if (topB === null) return -1
+    return topA - topB || a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name)
+  }
+  return a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name)
+}
+
 function hasMarkdown(dir: string): boolean {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name)
@@ -76,7 +102,7 @@ function hasMarkdown(dir: string): boolean {
   return false
 }
 
-// 目录内的条目：文件按创建时间从早到晚排序，子目录按名称排序并递归成组。
+// 目录内的条目：文件可用 frontmatter top 置顶排序，否则按创建时间从早到晚排序；子目录按名称排序并递归成组。
 function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[] {
   const entries = readdirSync(dir).map((name) => {
     const full = join(dir, name)
@@ -87,7 +113,7 @@ function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[
 
   const files = entries
     .filter((e) => e.stat.isFile() && extname(e.name) === '.md')
-    .sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name))
+    .sort(sortMarkdownFiles)
   for (const file of files) {
     const base = file.name.replace(/\.md$/, '')
     const link = relativeDir ? `/start/${relativeDir}/${base}` : `/start/${base}`
@@ -120,7 +146,7 @@ function buildStartSidebar(): DefaultTheme.SidebarItem[] {
 
   const rootFiles = entries
     .filter((e) => e.stat.isFile() && extname(e.name) === '.md')
-    .sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs || a.name.localeCompare(b.name))
+    .sort(sortMarkdownFiles)
   for (const file of rootFiles) {
     groups.push({ text: extractTitle(file.full), link: `/start/${file.name.replace(/\.md$/, '')}` })
   }
