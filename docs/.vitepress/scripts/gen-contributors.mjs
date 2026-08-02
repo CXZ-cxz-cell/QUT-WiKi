@@ -69,7 +69,12 @@ function getContributors(relPath) {
         if (!github) {
           const lowerEmails = emails.map(e => e.toLowerCase())
           for (const [key, val] of Object.entries(mapping)) {
-            if (lowerEmails.includes(key.toLowerCase()) || c.name.toLowerCase() === key.toLowerCase()) {
+            const mappedGithub = typeof val === 'object' && val !== null ? val.github : val
+            if (
+              lowerEmails.includes(key.toLowerCase()) ||
+              c.name.toLowerCase() === key.toLowerCase() ||
+              (mappedGithub && c.name.toLowerCase() === String(mappedGithub).toLowerCase())
+            ) {
               if (typeof val === 'object' && val !== null) {
                 github = val.github
                 avatar = val.avatar
@@ -220,10 +225,13 @@ function mergeContributors(gitContributors, manualContributors) {
     const key = contributorKey(contributor)
     const existing = map.get(key)
     if (existing) {
-      Object.assign(existing, {
-        github: existing.github || contributor.github,
-        avatar: existing.avatar || contributor.avatar,
-        email: existing.email || contributor.email,
+      map.set(key, {
+        ...existing,
+        ...contributor,
+        email: contributor.email || existing.email,
+        github: contributor.github || existing.github,
+        avatar: contributor.avatar || existing.avatar,
+        commits: existing.commits || contributor.commits || 0,
       })
     } else {
       map.set(key, contributor)
