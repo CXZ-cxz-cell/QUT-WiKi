@@ -6,3 +6,4 @@ docs/.http_cache
 .DS_Store
 *.log
 .playwright-mcp
+code/sync.ffs_db
