@@ -12,7 +12,8 @@ const contributorMeta = [
     name: 'LucasAndrew',
     tags: [],
     links: [
-      { text: 'GitHub', url: 'https://github.com/LucasAndrew0120' },
+      { text: 'GitHub', url: 'https://github.com/LucasAndrew0120'},
+      { text: '个人主页', url: 'https://lris625.top' },
     ],
   },
   {
@@ -20,6 +21,7 @@ const contributorMeta = [
     tags: [],
     links: [
       { text: 'GitHub', url: 'https://github.com/youziawa' },
+      { text: '博客', url: 'https://www.youziawa.top' },
     ],
   },
   {
@@ -27,6 +29,7 @@ const contributorMeta = [
     tags: [],
     links: [
       { text: 'GitHub', url: 'https://github.com/Roseau-1' },
+      { text: '博客', url: 'https://www.roseau.site/' },
     ],
   },
   {
