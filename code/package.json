@@ -1,6 +1,10 @@
 {
   "name": "qutwiki-xlsx-server",
+  "version": "1.0.0",
   "type": "module",
+  "bin": {
+    "qutwiki-sync": "./qutwiki-sync.mjs"
+  },
   "scripts": {
     "postinstall": "node install-deps.mjs",
     "start": "node server.mjs"
