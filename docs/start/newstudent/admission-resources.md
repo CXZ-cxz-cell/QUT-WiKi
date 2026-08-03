@@ -17,6 +17,7 @@ contributors:
 - [校园环境.pdf](https://www.kdocs.cn/l/cntcXR67XWXr)
 - [黄岛校区2026-2027学年第1学期公共课课程清单.xlsx](https://www.kdocs.cn/l/cbveDrKhbCKb)
 - [青岛理工大学食堂part.pdf](https://www.kdocs.cn/l/cuqWsPpCQHv1)
+- [青岛理工大学学生手册.pdf](https://docs.qq.com/pdf/DSGFoeUpXYXpQZWVY)
 
 ## 使用建议
 
