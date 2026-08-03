@@ -15,6 +15,7 @@ const directoryLabels: Record<string, string> = {
   preface: '序言',
   newstudent: '新生入学',
   'campus-life': '校园生活',
+  'campus-life/QUT-Organization': 'QUT-组织',
   'campus-life/competition': '竞赛--战队',
   about: '关于',
 }
