@@ -119,7 +119,57 @@ npm start
 
 ---
 
-## 三、贡献者自动识别
+## 三、AppCards 应用卡片
+
+将应用/链接以图标卡片网格展示，自动响应式折行，适配深色模式。
+
+### 用法
+
+直接在 Markdown 中写组件即可（组件已全局注册，无需 import）：
+
+```md
+<AppCards :links="[
+  { text: '学习通', icon: 'https://example.com/xuexitong.png', desc: '多数课程均在此；不要忘记期末考试' },
+  { text: 'U校园', icon: 'https://example.com/ucampus.png', desc: '大学英语要用', link: 'https://example.com' },
+]" />
+```
+
+### 参数说明
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `links` | array | - | 卡片数组（必填），每项字段见下表 |
+| `width` | string | `11em` | 卡片最小列宽，容器放不下时自动折行 |
+| `text-lines` | number | `2` | 名称最大显示行数，超出省略 |
+| `desc-lines` | number \| `false` | `false` | 描述最大显示行数，超出省略；`false` 不限制 |
+
+`links` 每项字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `text` | string | 卡片名称 |
+| `icon` | string | 图标 URL（`http`/`https` 开头渲染为图片），固定尺寸圆角展示在卡片左侧 |
+| `desc` | string | 描述文字，显示在名称下方，灰色小字 |
+| `link` | string | 链接地址，填写后整张卡片变为可点击链接，外部链接自动新窗口打开；不填则渲染为普通卡片 |
+
+### 示例
+
+以下数据来自[西邮 Wiki](https://wiki.cooo.site/campus/apps)：
+
+```md
+<AppCards width="12em" :desc-lines="2" :links="[
+  { text: '菜鸟', icon: 'https://p16.qhimg.com/dr/_72_/t01950c338d20f6ccaa.png', desc: '查快递、身份码取快递；淘宝“我的驿站”小程序也可' },
+  { text: '云达人', icon: 'https://p18.qhimg.com/t011e18028f5c93e2a1.png', desc: '洗澡用水；APP 设置使用码，无需手机', link: 'https://example.com' },
+]" />
+```
+
+### 许可说明
+
+组件改编自 [xupt-wiki/xupt-wiki](https://github.com/xupt-wiki/xupt-wiki)（西邮 Wiki）的 `LinkList` 组件，遵循 [MIT License](https://github.com/xupt-wiki/xupt-wiki/blob/main/LICENCE)，可自由使用、修改、商用。
+
+---
+
+## 四、贡献者自动识别
 
 每条文档底部会自动显示 Git 贡献者头像。由 `docs/.vitepress/scripts/gen-contributors.mjs` 在构建前通过 `git log` 生成 `contributors.json`。
 
@@ -181,7 +231,7 @@ contributors:
 
 ---
 
-## 四、Frontmatter 扩展配置
+## 五、Frontmatter 扩展配置
 
 QUTWiKi 在 VitePress 原生 frontmatter 之外新增以下配置项：
 
@@ -200,7 +250,7 @@ contributors:
 
 ---
 
-## 五、构建脚本
+## 六、构建脚本
 
 项目根目录的 `build.ps1` 一键构建并启动开发服务器：
 
