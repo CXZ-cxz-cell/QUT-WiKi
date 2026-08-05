@@ -7,6 +7,7 @@ import XLSX from 'xlsx'
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
 const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://sync.wiki.quters.top'
 const CACHE_TTL = 3600000
+const FORCE_XLSX_SYNC = process.env.QUTWIKI_XLSX_FORCE === '1'
 
 function esc(s: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }
@@ -41,7 +42,7 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
   const docId = match[1]
 
   const cacheFile = join(cacheDir, `${docId}.xlsx`)
-  if (existsSync(cacheFile)) {
+  if (!FORCE_XLSX_SYNC && existsSync(cacheFile)) {
     const age = Date.now() - statSync(cacheFile).mtimeMs
     if (age < CACHE_TTL) return readFileSync(cacheFile)
   }
