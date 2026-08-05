@@ -471,15 +471,20 @@ body::before {
     display: flex;
     padding-right: 0;
     padding-left: 0;
+    font-size: 14px;
   }
 
   .page-sidebar-drawer .VPLocalNav .menu-icon {
-    display: none;
+    display: inline-block;
   }
 
   .page-sidebar-drawer .VPLocalNavOutlineDropdown {
     margin-right: -8px;
     padding-right: 0;
+  }
+
+  .page-sidebar-drawer .VPLocalNavOutlineDropdown button {
+    font-size: 14px;
   }
 }
 
