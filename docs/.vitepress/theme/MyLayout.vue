@@ -1,12 +1,13 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
 import { useData, useRoute } from 'vitepress'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import Contributors from './components/Contributors.vue'
 
 const { frontmatter } = useData()
 const route = useRoute()
 
+const sidebarDrawerEnabled = computed(() => frontmatter.value.sidebarDrawer === true)
 const visible = ref(false)
 const src = ref('')
 const alt = ref('')
@@ -19,6 +20,10 @@ const lastY = ref(0)
 const anchorX = ref(0)
 const anchorY = ref(0)
 
+function updateBodyOverflow() {
+  document.body.style.overflow = visible.value ? 'hidden' : ''
+}
+
 function open(s, a) {
   src.value = s
   alt.value = a || ''
@@ -26,12 +31,12 @@ function open(s, a) {
   scale.value = 1
   tx.value = 0
   ty.value = 0
-  document.body.style.overflow = 'hidden'
+  updateBodyOverflow()
 }
 
 function close() {
   visible.value = false
-  document.body.style.overflow = ''
+  updateBodyOverflow()
 }
 
 function onWheel(e) {
@@ -84,7 +89,8 @@ function onPointerUp(e) {
 }
 
 function onKeydown(e) {
-  if (e.key === 'Escape') close()
+  if (e.key !== 'Escape') return
+  if (visible.value) close()
 }
 
 function onDocumentClick(e) {
@@ -107,7 +113,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="{ 'page-no-outline': frontmatter.outline === false || frontmatter.sidebar === false }" :key="route.path">
+  <div
+    :class="{
+      'page-no-outline': !sidebarDrawerEnabled && (frontmatter.outline === false || frontmatter.sidebar === false),
+      'page-hide-outline': sidebarDrawerEnabled && frontmatter.outline === false,
+      'page-sidebar-drawer': sidebarDrawerEnabled,
+    }"
+    :key="route.path"
+  >
     <DefaultTheme.Layout>
       <template #doc-footer-before>
         <Contributors />
