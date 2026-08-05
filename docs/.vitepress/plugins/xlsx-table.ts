@@ -71,6 +71,7 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     try { unlinkSync(tmpFile) } catch { }
     try { unlinkSync(scriptFile) } catch { }
   }
+  if (existsSync(cacheFile)) return readFileSync(cacheFile)
   return null
 }
 
@@ -146,6 +147,14 @@ function genAvatarUrl(val: string): string {
 }
 
 function renderContact(header: string, value: string, icon: string): string {
+  const labeled = value.match(/^((?:QQ|微信)\s*(?:群|个人))\s*[:：]?\s*(.+)$/i)
+  if (labeled) {
+    const label = labeled[1].replace(/\s+/g, '')
+    const account = labeled[2].trim()
+    const copyLabel = `${header}：${label} ${account}`
+    return `<span class="xlsx-card-contact"><span>${esc(label)} </span><button class="xlsx-card-link" type="button" data-copy="${esc(account)}" data-tip="" title="点击复制${esc(copyLabel)}" onclick="navigator.clipboard.writeText(this.dataset.copy || '').then(() => { this.dataset.tip = '复制成功'; window.setTimeout(() => { this.dataset.tip = '' }, 1200) })">${icon}<span>${esc(account)}</span></button></span>`
+  }
+
   const parts = value.split(/(\d+)/).filter(Boolean)
   const html = parts.map((part) => {
     if (!/^\d+$/.test(part)) return `<span>${esc(part)}</span>`
