@@ -1,6 +1,6 @@
 ---
 top: 14
-sidebar: false
+sidebarDrawer: true
 outline: false
 title: 实验室
 wordCount: false

@@ -1,6 +1,6 @@
 ---
 top: 12
-sidebar: false
+sidebarDrawer: true
 outline: false
 title: 学生社团
 wordCount: false
