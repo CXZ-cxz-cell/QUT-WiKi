@@ -100,9 +100,24 @@ function onDocumentClick(e) {
   }
 }
 
+function warmupLocalSearch() {
+  const schedule = window.requestIdleCallback || ((cb) => window.setTimeout(cb, 1200))
+  schedule(() => {
+    import('vitepress/dist/client/theme-default/components/VPLocalSearchBox.vue').catch(() => {})
+    import('@localSearchIndex')
+      .then((module) => {
+        Object.values(module.default || {}).forEach((load) => {
+          if (typeof load === 'function') load()
+        })
+      })
+      .catch(() => {})
+  })
+}
+
 onMounted(() => {
   document.addEventListener('click', onDocumentClick)
   document.addEventListener('keydown', onKeydown)
+  warmupLocalSearch()
 })
 
 onUnmounted(() => {

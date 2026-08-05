@@ -230,6 +230,27 @@ function countChineseChars(dir: string): number {
 
 const totalK = (countChineseChars(docsRoot) / 1000).toFixed(1)
 
+function tokenizeSearchText(text: string) {
+  const tokens: string[] = []
+  const parts = text.match(/[\u4e00-\u9fff]+|[a-zA-Z0-9]+/g) || []
+
+  for (const part of parts) {
+    if (/^[\u4e00-\u9fff]+$/.test(part)) {
+      if (part.length === 1) {
+        tokens.push(part)
+        continue
+      }
+      for (let i = 0; i < part.length - 1; i++) {
+        tokens.push(part.slice(i, i + 2))
+      }
+    } else {
+      tokens.push(part.toLowerCase())
+    }
+  }
+
+  return tokens
+}
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'QUTWiKi',
@@ -311,6 +332,45 @@ export default defineConfig({
     returnToTopLabel: '返回顶部',
     docFooter: { prev: '上一篇', next: '下一篇' },
     lastUpdatedText: '最后更新于',
-    search: { provider: 'local' }
+    search: {
+      provider: 'local',
+      options: {
+        translations: {
+          button: {
+            buttonText: '搜索',
+            buttonAriaLabel: '搜索文档'
+          },
+          modal: {
+            displayDetails: '显示详细列表',
+            resetButtonTitle: '清空搜索',
+            backButtonTitle: '关闭搜索',
+            noResultsText: '没有找到相关结果',
+            footer: {
+              selectText: '选择',
+              selectKeyAriaLabel: '回车键',
+              navigateText: '切换',
+              navigateUpKeyAriaLabel: '上方向键',
+              navigateDownKeyAriaLabel: '下方向键',
+              closeText: '关闭',
+              closeKeyAriaLabel: 'Esc 键'
+            }
+          }
+        },
+        miniSearch: {
+          options: {
+            tokenize: tokenizeSearchText,
+            processTerm: (term) => term.toLowerCase()
+          }
+        },
+        async _render(src, env, md) {
+          const html = md.render(src, env)
+          if ((env as any).frontmatter?.search === false) return ''
+          return html
+            .replace(/<span class="word-count">.*?<\/span>/g, '')
+            .replace(/<(strong|b|em|i|code)(\s[^>]*)?>/g, ' $&')
+            .replace(/<\/(strong|b|em|i|code)>/g, '$& ')
+        }
+      }
+    }
   }
 })
