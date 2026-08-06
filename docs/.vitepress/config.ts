@@ -188,6 +188,18 @@ function buildStartSidebar(): DefaultTheme.SidebarItem[] {
   return groups
 }
 
+// 顶栏三大板块：复用侧边栏自动生成的数据，与侧边栏保持同步。
+function sidebarGroupToNav(group: DefaultTheme.SidebarItem): DefaultTheme.NavItem {
+  const item: any = { text: group.text }
+  if (group.link) item.link = group.link
+  if (group.items) item.items = group.items.map(sidebarGroupToNav)
+  return item
+}
+
+const majorSections = buildStartSidebar()
+  .filter((g) => ['新生入学', '校园生活', '关于'].includes(g.text))
+  .map(sidebarGroupToNav)
+
 // dev 模式下监听 docs/start：仅当生成结果（结构/标题/顺序）变化时重启，
 // 普通正文编辑保持 VitePress 原生 HMR，不触发重启。
 function sidebarWatchPlugin() {
@@ -312,16 +324,13 @@ export default defineConfig({
   head: [
     ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
     ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
+    ['script', { src: 'https://umami.lris625.top/script.js', 'data-website-id': '1f32faca-51d3-4c90-a8b0-581e3c649c92', defer: '' }],
   ],
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      {
-        text: '更多',
-        items: [
-          { text: '更新日志', link: '/start/about/changelog' }
-        ]
-      }
+      ...majorSections,
+      { text: '友情链接', link: '/flink' }
     ],
     sidebar: {
       '/start/': buildStartSidebar(),
@@ -331,7 +340,6 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '首页', link: '/' },
-            { text: '更新日志', link: '/start/about/changelog' }
           ]
         }
       ]
