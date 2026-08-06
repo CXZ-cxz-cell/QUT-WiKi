@@ -4,6 +4,7 @@ import { resolve, extname, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import taskLists from 'markdown-it-task-lists'
 import { xlsxTablePlugin } from './plugins/xlsx-table'
+import { flinkBlockPlugin } from './plugins/flink-block'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
@@ -278,6 +279,7 @@ export default defineConfig({
     config: (md) => {
       md.use(taskLists)
       md.use(xlsxTablePlugin, docsRoot)
+      md.use(flinkBlockPlugin)
       md.core.ruler.push('word_count', (state) => {
         if ((state.env as any).frontmatter?.wordCount === false) return
         const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
