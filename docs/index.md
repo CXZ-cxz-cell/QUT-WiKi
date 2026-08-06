@@ -23,7 +23,7 @@ features:
     details: 帮助你快速融入校园生活
     link: start/newstudent/campus-buildings
   - icon: 🏫
-    title: 校园设施
+    title: 校园生活
     details: 了解校园内的各类信息
     link: start/campus-life/study/academic-system
   - icon: 📝
