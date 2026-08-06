@@ -151,7 +151,14 @@ export function syncOnce(key, url) {
     return syncing.get(key)
   }
 
-  const task = syncSheets(url).finally(() => syncing.delete(key))
+  // 看门狗：同步任务卡死时强制放弃并释放锁，避免后续请求无限等待
+  const syncTimeout = Number(process.env.SYNC_TIMEOUT || 5 * 60 * 1000)
+  const task = Promise.race([
+    syncSheets(url),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`同步超时（${syncTimeout / 60000} 分钟），已放弃本次任务`)), syncTimeout),
+    ),
+  ]).finally(() => syncing.delete(key))
   syncing.set(key, task)
   return task
 }

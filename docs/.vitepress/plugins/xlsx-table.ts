@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import { tmpdir } from 'os'
 import { execSync } from 'child_process'
@@ -42,9 +42,10 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
   const docId = match[1]
 
   const cacheFile = join(cacheDir, `${docId}.xlsx`)
-  if (!FORCE_XLSX_SYNC && existsSync(cacheFile)) {
+  const staleCache = existsSync(cacheFile) ? readFileSync(cacheFile) : null
+  if (!FORCE_XLSX_SYNC && staleCache) {
     const age = Date.now() - statSync(cacheFile).mtimeMs
-    if (age < CACHE_TTL) return readFileSync(cacheFile)
+    if (age < CACHE_TTL) return staleCache
   }
 
   const apiUrl = `${TEN_API}/api/xlsx?url=${encodeURIComponent(docUrl)}`
@@ -60,7 +61,7 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     '}).on("error",function(){process.exit(1)});',
   ].join('\n'))
   try {
-    execSync(`node "${scriptFile}"`, { timeout: 60000, stdio: 'pipe', windowsHide: true })
+    execSync(`node "${scriptFile}"`, { timeout: 150000, stdio: 'pipe', windowsHide: true })
     if (existsSync(tmpFile)) {
       const buf = readFileSync(tmpFile)
       mkdirSync(dirname(cacheFile), { recursive: true })
@@ -71,7 +72,14 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     try { unlinkSync(tmpFile) } catch { }
     try { unlinkSync(scriptFile) } catch { }
   }
-  if (existsSync(cacheFile)) return readFileSync(cacheFile)
+  if (staleCache) {
+    // 同步失败：沿用旧缓存，并刷新过期时间推迟下次重试，避免每次构建都卡在同步超时上
+    try {
+      const now = new Date()
+      utimesSync(cacheFile, now, now)
+    } catch { }
+    return staleCache
+  }
   return null
 }
 
