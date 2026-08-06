@@ -79,6 +79,11 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 |------|------|
 | `newstudent/` | 新生入学 |
 | `campus-life/` | 校园生活 |
+| `campus-life/study/` | 学习学业（教务系统、综测、学历提升、图书馆预约） |
+| `campus-life/systems/` | 校园系统（智慧学工、缴费、水电、邮箱、常用软件） |
+| `campus-life/daily-life/` | 生活日常（宿舍、校园周边） |
+| `campus-life/qut-organization/` | QUT-组织 |
+| `campus-life/competition/` | 竞赛--战队 |
 | `about/` | 关于本站 |
 
 ### 命名与格式

@@ -25,7 +25,7 @@ features:
   - icon: 🏫
     title: 校园设施
     details: 了解校园内的各类信息
-    link: start/campus-life/academic-system
+    link: start/campus-life/study/academic-system
   - icon: 📝
     title: 关于
     details: 参与贡献&加入我们

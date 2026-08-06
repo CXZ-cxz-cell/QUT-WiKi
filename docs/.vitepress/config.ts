@@ -15,12 +15,19 @@ const directoryLabels: Record<string, string> = {
   preface: '序言',
   newstudent: '新生入学',
   'campus-life': '校园生活',
-  'campus-life/QUT-Organization': 'QUT-组织',
+  'campus-life/study': '学习学业',
+  'campus-life/systems': '校园系统',
+  'campus-life/daily-life': '生活日常',
+  'campus-life/qut-organization': 'QUT-组织',
   'campus-life/competition': '竞赛--战队',
   about: '关于',
 }
 // 顶层分组的展示顺序，未列出的目录排在最后并按名称排序。
 const sectionOrder = ['preface', 'newstudent', 'campus-life', 'about']
+// 子目录的展示顺序，未列出的目录排在最后并按名称排序。
+const subSectionOrder: Record<string, string[]> = {
+  'campus-life': ['systems', 'study', 'daily-life', 'qut-organization', 'competition'],
+}
 
 function getDirectoryLabel(relativeDir: string): string {
   const label = directoryLabels[relativeDir]
@@ -122,9 +129,16 @@ function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[
     items.push({ text: extractTitle(file.full), link })
   }
 
+  const order = subSectionOrder[relativeDir] || []
   const dirs = entries
     .filter((e) => e.stat.isDirectory() && hasMarkdown(e.full))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => {
+      const rankA = order.indexOf(a.name)
+      const rankB = order.indexOf(b.name)
+      const orderA = rankA === -1 ? order.length : rankA
+      const orderB = rankB === -1 ? order.length : rankB
+      return orderA - orderB || a.name.localeCompare(b.name)
+    })
   for (const child of dirs) {
     const childRelative = relativeDir ? `${relativeDir}/${child.name}` : child.name
     items.push({
