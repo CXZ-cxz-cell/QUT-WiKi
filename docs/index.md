@@ -22,6 +22,10 @@ features:
     title: 新生入学
     details: 帮助你快速融入校园生活
     link: start/newstudent/campus-buildings
+  - icon: 🏫
+    title: 校园生活
+    details: 了解校园内的各类信息
+    link: start/campus-life/study/academic-system
   - icon: 📝
     title: 关于
     details: 参与贡献&加入我们

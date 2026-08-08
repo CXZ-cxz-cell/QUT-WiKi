@@ -1,5 +1,5 @@
 ---
-top: 5
+top: 4
 ---
 
 # 站点功能说明
@@ -119,7 +119,106 @@ npm start
 
 ---
 
-## 三、贡献者自动识别
+## 三、AppCards 应用卡片
+
+将应用/链接以图标卡片网格展示，自动响应式折行，适配深色模式。
+
+### 用法
+
+直接在 Markdown 中写组件即可（组件已全局注册，无需 import）：
+
+```md
+<AppCards :links="[
+  { text: '学习通', icon: 'https://example.com/xuexitong.png', desc: '多数课程均在此；不要忘记期末考试' },
+  { text: 'U校园', icon: 'https://example.com/ucampus.png', desc: '大学英语要用', link: 'https://example.com' },
+]" />
+```
+
+### 参数说明
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `links` | array | - | 卡片数组（必填），每项字段见下表 |
+| `width` | string | `11em` | 卡片最小列宽，容器放不下时自动折行 |
+| `text-lines` | number | `2` | 名称最大显示行数，超出省略 |
+| `desc-lines` | number \| `false` | `false` | 描述最大显示行数，超出省略；`false` 不限制 |
+
+`links` 每项字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `text` | string | 卡片名称 |
+| `icon` | string | 图标 URL（`http`/`https` 开头渲染为图片），固定尺寸圆角展示在卡片左侧 |
+| `desc` | string | 描述文字，显示在名称下方，灰色小字 |
+| `link` | string | 链接地址，填写后整张卡片变为可点击链接，外部链接自动新窗口打开；不填则渲染为普通卡片 |
+
+### 示例
+
+以下数据来自[西邮 Wiki](https://wiki.cooo.site/campus/apps)：
+
+```md
+<AppCards width="12em" :desc-lines="2" :links="[
+  { text: '菜鸟', icon: 'https://p16.qhimg.com/dr/_72_/t01950c338d20f6ccaa.png', desc: '查快递、身份码取快递；淘宝“我的驿站”小程序也可' },
+  { text: '云达人', icon: 'https://p18.qhimg.com/t011e18028f5c93e2a1.png', desc: '洗澡用水；APP 设置使用码，无需手机', link: 'https://example.com' },
+]" />
+```
+
+### 许可说明
+
+组件改编自 [xupt-wiki/xupt-wiki](https://github.com/xupt-wiki/xupt-wiki)（西邮 Wiki）的 `LinkList` 组件，遵循 [MIT License](https://github.com/xupt-wiki/xupt-wiki/blob/main/LICENCE)，可自由使用、修改、商用。
+
+---
+
+## 四、Flink 友链卡片
+
+批量渲染友情链接卡片，截图背景图 + 圆形头像 + 名称 + 描述的杂志式网格布局，自动适配深色模式。
+
+### 批量渲染（推荐）
+
+在 `<flink>` 和 `</flink>` 之间写列表，一个 `-` 一条：
+
+```markdown
+<flink>
+  - name: AnTooLot
+    link: https://antoolot.top/
+    avatar: https://pic.imgdb.cn/i/033pozBkOwFBKXlEQHEDWx.webp
+    descr: 我们人品的一切可取之处，都该感谢沉默的教诲。
+    siteshot: https://pic.imgdb.cn/i/033pozTuyso0j0PLfxl9LG.webp
+</flink>
+```
+
+> 容器写法由 `docs/.vitepress/plugins/flink-block.ts` 在构建时解析为组件渲染。
+
+每条支持以下参数：
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `name` | ✅ | 站点名称 |
+| `link` | ✅ | 站点链接（建议 https），外部链接自动新窗口打开 |
+| `avatar` | ❌ | 头像图片链接，圆形展示 |
+| `descr` | ❌ | 站点描述（也兼容 `desc`），最多两行 |
+| `siteshot` | ❌ | 友链卡片背景图链接，按 16:9 比例裁剪展示 |
+
+### 单张卡片
+
+任意 Markdown 页面可直接用 `<flink>` 标签生成单张卡片：
+
+```markdown
+<flink name="站点名称" link="https://example.com/" avatar="头像链接" siteshot="背景图链接" desc="描述"></flink>
+```
+
+多个连续书写（中间不要空行）自动排布为网格卡片。
+
+### 布局说明
+
+- 桌面端 4 列、平板 3 列、手机 2 列，按容器宽度自动折行
+- 背景图固定 **16:9** 比例，移动端等比缩小
+- 悬停时名称变为主题色，背景图轻微放大并加深阴影
+- 头像或背景图加载失败自动隐藏，不破坏卡片布局
+
+---
+
+## 五、贡献者自动识别
 
 每条文档底部会自动显示 Git 贡献者头像。由 `docs/.vitepress/scripts/gen-contributors.mjs` 在构建前通过 `git log` 生成 `contributors.json`。
 
@@ -181,7 +280,7 @@ contributors:
 
 ---
 
-## 四、Frontmatter 扩展配置
+## 六、Frontmatter 扩展配置
 
 QUTWiKi 在 VitePress 原生 frontmatter 之外新增以下配置项：
 
@@ -200,7 +299,7 @@ contributors:
 
 ---
 
-## 五、构建脚本
+## 七、构建脚本
 
 项目根目录的 `build.ps1` 一键构建并启动开发服务器：
 

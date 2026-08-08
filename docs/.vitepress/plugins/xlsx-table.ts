@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'fs'
 import { resolve, join, dirname } from 'path'
 import { tmpdir } from 'os'
 import { execSync } from 'child_process'
@@ -7,6 +7,7 @@ import XLSX from 'xlsx'
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
 const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://sync.wiki.quters.top'
 const CACHE_TTL = 3600000
+const FORCE_XLSX_SYNC = process.env.QUTWIKI_XLSX_FORCE === '1'
 
 function esc(s: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }
@@ -41,9 +42,10 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
   const docId = match[1]
 
   const cacheFile = join(cacheDir, `${docId}.xlsx`)
-  if (existsSync(cacheFile)) {
+  const staleCache = existsSync(cacheFile) ? readFileSync(cacheFile) : null
+  if (!FORCE_XLSX_SYNC && staleCache) {
     const age = Date.now() - statSync(cacheFile).mtimeMs
-    if (age < CACHE_TTL) return readFileSync(cacheFile)
+    if (age < CACHE_TTL) return staleCache
   }
 
   const apiUrl = `${TEN_API}/api/xlsx?url=${encodeURIComponent(docUrl)}`
@@ -59,7 +61,7 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     '}).on("error",function(){process.exit(1)});',
   ].join('\n'))
   try {
-    execSync(`node "${scriptFile}"`, { timeout: 60000, stdio: 'pipe', windowsHide: true })
+    execSync(`node "${scriptFile}"`, { timeout: 150000, stdio: 'pipe', windowsHide: true })
     if (existsSync(tmpFile)) {
       const buf = readFileSync(tmpFile)
       mkdirSync(dirname(cacheFile), { recursive: true })
@@ -69,6 +71,14 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
   } catch { } finally {
     try { unlinkSync(tmpFile) } catch { }
     try { unlinkSync(scriptFile) } catch { }
+  }
+  if (staleCache) {
+    // 同步失败：沿用旧缓存，并刷新过期时间推迟下次重试，避免每次构建都卡在同步超时上
+    try {
+      const now = new Date()
+      utimesSync(cacheFile, now, now)
+    } catch { }
+    return staleCache
   }
   return null
 }
@@ -145,6 +155,14 @@ function genAvatarUrl(val: string): string {
 }
 
 function renderContact(header: string, value: string, icon: string): string {
+  const labeled = value.match(/^((?:QQ|微信)\s*(?:群|个人))\s*[:：]?\s*(.+)$/i)
+  if (labeled) {
+    const label = labeled[1].replace(/\s+/g, '')
+    const account = labeled[2].trim()
+    const copyLabel = `${header}：${label} ${account}`
+    return `<span class="xlsx-card-contact"><span>${esc(label)} </span><button class="xlsx-card-link" type="button" data-copy="${esc(account)}" data-tip="" title="点击复制${esc(copyLabel)}" onclick="navigator.clipboard.writeText(this.dataset.copy || '').then(() => { this.dataset.tip = '复制成功'; window.setTimeout(() => { this.dataset.tip = '' }, 1200) })">${icon}<span>${esc(account)}</span></button></span>`
+  }
+
   const parts = value.split(/(\d+)/).filter(Boolean)
   const html = parts.map((part) => {
     if (!/^\d+$/.test(part)) return `<span>${esc(part)}</span>`

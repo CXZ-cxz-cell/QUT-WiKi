@@ -4,6 +4,7 @@ import { resolve, extname, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import taskLists from 'markdown-it-task-lists'
 import { xlsxTablePlugin } from './plugins/xlsx-table'
+import { flinkBlockPlugin } from './plugins/flink-block'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
@@ -15,11 +16,19 @@ const directoryLabels: Record<string, string> = {
   preface: '序言',
   newstudent: '新生入学',
   'campus-life': '校园生活',
+  'campus-life/study': '学习学业',
+  'campus-life/systems': '校园系统',
+  'campus-life/daily-life': '生活日常',
+  'campus-life/qut-organization': 'QUT-组织',
   'campus-life/competition': '竞赛--战队',
   about: '关于',
 }
 // 顶层分组的展示顺序，未列出的目录排在最后并按名称排序。
 const sectionOrder = ['preface', 'newstudent', 'campus-life', 'about']
+// 子目录的展示顺序，未列出的目录排在最后并按名称排序。
+const subSectionOrder: Record<string, string[]> = {
+  'campus-life': ['systems', 'study', 'daily-life', 'qut-organization', 'competition'],
+}
 
 function getDirectoryLabel(relativeDir: string): string {
   const label = directoryLabels[relativeDir]
@@ -121,9 +130,16 @@ function buildItems(dir: string, relativeDir: string): DefaultTheme.SidebarItem[
     items.push({ text: extractTitle(file.full), link })
   }
 
+  const order = subSectionOrder[relativeDir] || []
   const dirs = entries
     .filter((e) => e.stat.isDirectory() && hasMarkdown(e.full))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => {
+      const rankA = order.indexOf(a.name)
+      const rankB = order.indexOf(b.name)
+      const orderA = rankA === -1 ? order.length : rankA
+      const orderB = rankB === -1 ? order.length : rankB
+      return orderA - orderB || a.name.localeCompare(b.name)
+    })
   for (const child of dirs) {
     const childRelative = relativeDir ? `${relativeDir}/${child.name}` : child.name
     items.push({
@@ -171,6 +187,18 @@ function buildStartSidebar(): DefaultTheme.SidebarItem[] {
 
   return groups
 }
+
+// 顶栏三大板块：复用侧边栏自动生成的数据，与侧边栏保持同步。
+function sidebarGroupToNav(group: DefaultTheme.SidebarItem): DefaultTheme.NavItem {
+  const item: any = { text: group.text }
+  if (group.link) item.link = group.link
+  if (group.items) item.items = group.items.map(sidebarGroupToNav)
+  return item
+}
+
+const majorSections = buildStartSidebar()
+  .filter((g) => ['新生入学', '校园生活', '关于'].includes(g.text))
+  .map(sidebarGroupToNav)
 
 // dev 模式下监听 docs/start：仅当生成结果（结构/标题/顺序）变化时重启，
 // 普通正文编辑保持 VitePress 原生 HMR，不触发重启。
@@ -229,6 +257,27 @@ function countChineseChars(dir: string): number {
 
 const totalK = (countChineseChars(docsRoot) / 1000).toFixed(1)
 
+function tokenizeSearchText(text: string) {
+  const tokens: string[] = []
+  const parts = text.match(/[\u4e00-\u9fff]+|[a-zA-Z0-9]+/g) || []
+
+  for (const part of parts) {
+    if (/^[\u4e00-\u9fff]+$/.test(part)) {
+      if (part.length === 1) {
+        tokens.push(part)
+        continue
+      }
+      for (let i = 0; i < part.length - 1; i++) {
+        tokens.push(part.slice(i, i + 2))
+      }
+    } else {
+      tokens.push(part.toLowerCase())
+    }
+  }
+
+  return tokens
+}
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'QUTWiKi',
@@ -242,6 +291,7 @@ export default defineConfig({
     config: (md) => {
       md.use(taskLists)
       md.use(xlsxTablePlugin, docsRoot)
+      md.use(flinkBlockPlugin)
       md.core.ruler.push('word_count', (state) => {
         if ((state.env as any).frontmatter?.wordCount === false) return
         const text = state.src.replace(/[^\u4e00-\u9fff]/g, '')
@@ -274,16 +324,13 @@ export default defineConfig({
   head: [
     ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
     ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
+    ['script', { src: 'https://umami.lris625.top/script.js', 'data-website-id': '1f32faca-51d3-4c90-a8b0-581e3c649c92', defer: '' }],
   ],
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      {
-        text: '更多',
-        items: [
-          { text: '更新日志', link: '/start/about/changelog' }
-        ]
-      }
+      ...majorSections,
+      { text: '友情链接', link: '/flink' }
     ],
     sidebar: {
       '/start/': buildStartSidebar(),
@@ -293,7 +340,6 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '首页', link: '/' },
-            { text: '更新日志', link: '/start/about/changelog' }
           ]
         }
       ]
@@ -306,8 +352,49 @@ export default defineConfig({
       copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a>'
     },
     outline: { level: [2, 3], label: '本页导航' },
+    sidebarMenuLabel: '本站目录',
+    returnToTopLabel: '返回顶部',
     docFooter: { prev: '上一篇', next: '下一篇' },
     lastUpdatedText: '最后更新于',
-    search: { provider: 'local' }
+    search: {
+      provider: 'local',
+      options: {
+        translations: {
+          button: {
+            buttonText: '搜索',
+            buttonAriaLabel: '搜索文档'
+          },
+          modal: {
+            displayDetails: '显示详细列表',
+            resetButtonTitle: '清空搜索',
+            backButtonTitle: '关闭搜索',
+            noResultsText: '没有找到相关结果',
+            footer: {
+              selectText: '选择',
+              selectKeyAriaLabel: '回车键',
+              navigateText: '切换',
+              navigateUpKeyAriaLabel: '上方向键',
+              navigateDownKeyAriaLabel: '下方向键',
+              closeText: '关闭',
+              closeKeyAriaLabel: 'Esc 键'
+            }
+          }
+        },
+        miniSearch: {
+          options: {
+            tokenize: tokenizeSearchText,
+            processTerm: (term) => term.toLowerCase()
+          }
+        },
+        async _render(src, env, md) {
+          const html = md.render(src, env)
+          if ((env as any).frontmatter?.search === false) return ''
+          return html
+            .replace(/<span class="word-count">.*?<\/span>/g, '')
+            .replace(/<(strong|b|em|i|code)(\s[^>]*)?>/g, ' $&')
+            .replace(/<\/(strong|b|em|i|code)>/g, '$& ')
+        }
+      }
+    }
   }
 })
