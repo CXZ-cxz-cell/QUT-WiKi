@@ -196,3 +196,7 @@ const contributors = contributorMeta.map((item) => {
   }
 }
 </style>
+
+## 开源项目
+
+本项目的一些前端样式和后端代码参考了[**西邮Wiki**](https://wiki.cooo.site/),在此感谢[**西邮Wiki项目组**](https://github.com/xupt-wiki/xupt-wiki)的无私开源。
