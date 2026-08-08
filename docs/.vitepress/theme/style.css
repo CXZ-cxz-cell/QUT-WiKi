@@ -522,3 +522,10 @@ body::before {
 .VPDocFooter:has(.contributors) .last-updated {
   display: none;
 }
+
+@media (min-width: 960px) {
+  .flink-page .VPDoc .container,
+  .flink-page .VPDoc .content {
+    max-width: 940px !important;
+  }
+}

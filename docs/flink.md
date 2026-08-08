@@ -2,6 +2,7 @@
 title: 友情链接
 sidebar: false
 outline: false
+pageClass: flink-page
 ---
 
 <h1 align="center">友情链接</h1>
@@ -10,21 +11,19 @@ outline: false
 
 <flink>
   
+    - name: MOE 购机指南
+      link: https://moe.lkyu.cf/
+      avatar: https://pic.imgdb.cn/i/033pp0Ajx1ko6wLY34CD4n.webp
+      descr: 写给大学生的电脑科普&购买一体方案
+      siteshot: https://pic.imgdb.cn/i/033pCCZhDIJ8B8mzRZIVW7.webp
+
+
+
 </flink>
 
-## 添加友链
+## 申请友链
 
-在 `<flink>` 和 `</flink>` 之间按以下格式追加一条即可：
-
-```markdown
-<flink>
-  - name: 站点名称
-    link: https://example.com/
-    avatar: 头像图片链接
-    descr: 一句话描述
-    siteshot: 友链卡片背景图链接
-</flink>
-```
+有申请友链意向者，可以携带一下参数发送到我的邮箱[lucasandrew0120@outlook.com](mailto:lucasandrew0120@outlook.com)
 
 | 参数 | 必填 | 说明 |
 | --- | --- | --- |
@@ -34,10 +33,3 @@ outline: false
 | `descr` | ❌ | 站点描述（也兼容 `desc`） |
 | `siteshot` | ❌ | 友链卡片背景图链接 |
 
-## 其他页面使用
-
-在任意 Markdown 页面中可以直接用 `<flink>` 标签生成单张卡
-
-
-
-多个连续书写（中间不要空行）自动排布为网格卡片。

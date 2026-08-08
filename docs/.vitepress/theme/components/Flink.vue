@@ -64,7 +64,7 @@ function hideBroken(event: Event) {
 
 .qut-flink-img {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 7 / 5;
   overflow: hidden;
   border-radius: 6px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
@@ -122,9 +122,9 @@ function hideBroken(event: Event) {
 }
 
 .qut-flink-desc {
-  min-height: 2.8em;
-  font-size: 14px;
-  line-height: 1.4;
+  min-height: 2.4em;
+  font-size: 16px;
+  line-height: 1.2;
   color: var(--vp-c-text-2);
   overflow: hidden;
   display: -webkit-box;

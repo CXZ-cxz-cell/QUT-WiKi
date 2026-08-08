@@ -38,3 +38,10 @@ const items = computed<FlinkItem[]>(
     />
   </div>
 </template>
+
+<style scoped>
+.qut-flinks {
+  max-width: 904px;
+  margin: 0 auto;
+}
+</style>
