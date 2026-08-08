@@ -1,7 +1,8 @@
 ---
 top: 9
-contributors: 
-    - name: 黎蛰
+contributors:
+  - name: 黎蛰
+    avatar: https://pic1.imgdb.cn/i/033zzgyXaoNhqfbogN34rr.webp
 ---
 # 2026级导员电话
 
