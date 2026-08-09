@@ -46,6 +46,13 @@ const contributorMeta = [
       { text: 'GitHub', url: 'https://github.com/electricel' },
     ],
   },
+  {
+    name: '22Milan33',
+    tags: [],
+    links: [
+      { text: 'GitHub', url: 'https://github.com/22Milan33' },
+    ],
+  },
 ]
 
 const contributors = contributorMeta.map((item) => {
@@ -199,4 +206,6 @@ const contributors = contributorMeta.map((item) => {
 
 ## 开源项目
 
-本项目的一些前端样式和后端代码参考了[**西邮Wiki**](https://wiki.cooo.site/),在此感谢[**西邮Wiki项目组**](https://github.com/xupt-wiki/xupt-wiki)的无私开源。
+本项目的一些前端样式和后端代码参考了[**西邮Wiki**](https://wiki.cooo.site/)，在此感谢[**西邮Wiki项目组**](https://github.com/xupt-wiki/xupt-wiki)的无私开源。
+
+校园地图功能参考了[**CQUMAPS**（重庆大学校园地图导航系统）](https://github.com/littlemana-bot/CQUMAPS)与[**CQU-openlib**（重庆大学资源共享计划）](https://github.com/INFO-studio/CQU-openlib)，页面布局、交互设计与配色方案借鉴自其开源代码（[cqu-openlib.cn/map](https://cqu-openlib.cn/map)），在此感谢两个项目的无私开源。
