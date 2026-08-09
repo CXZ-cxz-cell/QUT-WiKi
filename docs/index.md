@@ -10,6 +10,9 @@ hero:
       text: 开始阅读
       link: start/preface/introduction
     - theme: alt
+      text: 学校地图
+      link: map
+    - theme: alt
       text: 加入我们
       link: start/about/join-us
 

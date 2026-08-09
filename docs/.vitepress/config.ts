@@ -330,6 +330,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       ...majorSections,
+      { text: '学校地图', link: '/map' },
       { text: '友情链接', link: '/flink' }
     ],
     sidebar: {
