@@ -113,6 +113,12 @@ contributors:
 
 ---
 
+## 市北校区
+
+![市北校区](https://pic1.imgdb.cn/i/0344FhAQMva0OBnEA3bE61.webp)
+
+---
+
 ## 临沂校区
 
 ![临沂校区](https://pic1.imgdb.cn/i/0343ucDwM6G0IA084jMpnp.webp)

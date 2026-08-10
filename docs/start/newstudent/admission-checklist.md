@@ -40,12 +40,6 @@ contributors:
 
 建议提前两天寄出，尽量避开开学高峰。
 
-## 常用 App
-
-- 学习通：常用于签到、作业、考试等。
-- 知到：部分课程可能会使用。
-
-![常用 App 参考](https://pic1.imgdb.cn/i/033zzvQlOYga0ABjdJU1d5.webp)
 
 ## 其他提醒
 
