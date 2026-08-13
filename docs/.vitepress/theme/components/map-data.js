@@ -495,5 +495,397 @@ export const BUILDINGS = [
     campusId: 'h',
     coord: [120.205283,35.971689],
     desc: '学校行政办公场所。'
+  },
+  {
+    id: 's_teaching_01',
+    name: '10号楼',
+    category: 'teaching',
+    campusId: 's',
+    coord: [120.370441,36.101934],
+    desc: '市北校区教学楼（高德POI）。'
+  },
+  {
+    id: 's_teaching_04',
+    name: '一号教学楼',
+    category: 'teaching',
+    campusId: 's',
+    coord: [120.371245,36.099380],
+    desc: '市北校区主教学楼（南院），位置经高德POI「卓越人才培养办公室（1号教学楼309）」与「抚顺路11号甲（1号教学楼西北80米）」交叉确认。'
+  },
+  {
+    id: 's_teaching_02',
+    name: '暖通实验楼',
+    category: 'teaching',
+    campusId: 's',
+    coord: [120.372275,36.100425],
+    desc: '位于市北校区南区（高德POI）。'
+  },
+  {
+    id: 's_teaching_03',
+    name: 'BIM实验教学中心',
+    category: 'teaching',
+    campusId: 's',
+    coord: [120.370816,36.101944],
+    desc: '位于理工大学3号实验楼（高德POI）。'
+  },
+  {
+    id: 's_college_01',
+    name: '建筑馆',
+    category: 'college',
+    campusId: 's',
+    coord: [120.371958,36.098772],
+    desc: '建筑与城乡规划学院所在建筑。'
+  },
+  {
+    id: 's_college_02',
+    name: '滨海仁居研究中心',
+    category: 'college',
+    campusId: 's',
+    coord: [120.370883,36.098352],
+    desc: '滨海人居环境相关研究机构所在地。'
+  },
+  {
+    id: 's_college_03',
+    name: '建筑与城乡规划学院',
+    category: 'college',
+    campusId: 's',
+    coord: [120.371933,36.098678],
+    desc: '位于建筑馆（高德POI）。'
+  },
+  {
+    id: 's_college_04',
+    name: '国际学院',
+    category: 'college',
+    campusId: 's',
+    coord: [120.371127,36.100080],
+    desc: '市北校区国际学院（高德POI）。'
+  },
+  {
+    id: 's_college_05',
+    name: '艺术与设计学院',
+    category: 'college',
+    campusId: 's',
+    coord: [120.370086,36.100520],
+    desc: '市北校区艺术与设计学院（高德POI）。'
+  },
+  {
+    id: 's_college_06',
+    name: '机械实验室',
+    category: 'college',
+    campusId: 's',
+    coord: [120.372019,36.101833],
+    desc: '市北校区机械实验室（高德POI）。'
+  },
+  {
+    id: 's_college_07',
+    name: '建筑设计研究院',
+    category: 'college',
+    campusId: 's',
+    coord: [120.374022,36.097842],
+    desc: '市北校区建筑设计研究院（高德POI）。'
+  },
+  {
+    id: 's_landmark_01',
+    name: '南院',
+    category: 'landmark',
+    campusId: 's',
+    coord: [120.371043,36.099099],
+    desc: '青岛理工大学南院（高德POI）。'
+  },
+  {
+    id: 's_landmark_02',
+    name: '家属楼',
+    category: 'landmark',
+    campusId: 's',
+    coord: [120.369102,36.101222],
+    desc: '青岛理工大学家属楼（高德POI）。'
+  },
+  {
+    id: 's_library_01',
+    name: '图书馆',
+    category: 'library',
+    campusId: 's',
+    coord: [120.372609,36.099799],
+    desc: '市北校区图书馆，供自习与图书借阅。'
+  },
+  {
+    id: 's_theater_01',
+    name: '礼堂',
+    category: 'theater',
+    campusId: 's',
+    coord: [120.372725,36.101525],
+    desc: '用于举办讲座、演出与大型活动的场所。'
+  },
+  {
+    id: 's_canteen_01',
+    name: '食堂（思源餐厅）',
+    category: 'canteen',
+    campusId: 's',
+    coord: [120.371154,36.101604],
+    desc: '市北校区食堂。'
+  },
+  {
+    id: 's_dormitory_01',
+    name: '学生宿舍',
+    category: 'dormitory',
+    campusId: 's',
+    coord: [120.372052,36.100509],
+    desc: '市北校区学生宿舍（高德POI）。'
+  },
+  {
+    id: 's_sports_01',
+    name: '篮球场',
+    category: 'sports',
+    campusId: 's',
+    coord: [120.372267,36.100789],
+    desc: '露天篮球场。'
+  },
+  {
+    id: 's_admin_01',
+    name: '卓越人才培养办公室',
+    category: 'admin',
+    campusId: 's',
+    coord: [120.371245,36.099380],
+    desc: '位于市北校区1号教学楼309（高德POI）。'
+  },
+  {
+    id: 's_admin_02',
+    name: '校园卡管理中心',
+    category: 'admin',
+    campusId: 's',
+    coord: [120.370864,36.099308],
+    desc: '市北校区校园卡管理中心（高德POI）。'
+  },
+  {
+    id: 's_admin_03',
+    name: '财务自助服务中心',
+    category: 'admin',
+    campusId: 's',
+    coord: [120.371725,36.099275],
+    desc: '市北校区财务自助服务中心（高德POI）。'
+  },
+  {
+    id: 's_express_01',
+    name: '青岛理工大学快递站',
+    category: 'express',
+    campusId: 's',
+    coord: [120.371775,36.100325],
+    desc: '市北校区快递站（高德POI）。'
+  },
+  {
+    id: 's_express_02',
+    name: '丽丰菜鸟驿站',
+    category: 'express',
+    campusId: 's',
+    coord: [120.368349,36.100893],
+    desc: '市北校区丽丰菜鸟驿站（高德POI）。'
+  },
+  {
+    id: 's_food_01',
+    name: '百度图文',
+    category: 'food',
+    campusId: 's',
+    coord: [120.371432,36.101743],
+    desc: '理工大学北院食堂楼下网点（高德POI）。'
+  },
+  {
+    id: 's_food_02',
+    name: '理工大学夜市',
+    category: 'food',
+    campusId: 's',
+    coord: [120.370037,36.100221],
+    desc: '抚顺路与抚顺支路交叉口东侧（高德POI）。'
+  },
+  {
+    id: 'l_teaching_01',
+    name: '弘文楼',
+    category: 'teaching',
+    campusId: 'l',
+    coord: [118.272733,35.187697],
+    desc: '临沂校区教学楼。'
+  },
+  {
+    id: 'l_teaching_02',
+    name: '行远楼',
+    category: 'teaching',
+    campusId: 'l',
+    coord: [118.273356,35.187124],
+    desc: '临沂校区教学楼。'
+  },
+  {
+    id: 'l_teaching_03',
+    name: '知源楼',
+    category: 'teaching',
+    campusId: 'l',
+    coord: [118.271323,35.186651],
+    desc: '临沂校区教学楼。'
+  },
+  {
+    id: 'l_teaching_04',
+    name: '敏行楼',
+    category: 'teaching',
+    campusId: 'l',
+    coord: [118.272411,35.186876],
+    desc: '临沂校区教学楼。'
+  },
+  {
+    id: 'l_teaching_05',
+    name: '知心楼',
+    category: 'teaching',
+    campusId: 'l',
+    coord: [118.271253,35.187936],
+    desc: '临沂校区教学楼。'
+  },
+  {
+    id: 'l_college_01',
+    name: '筑韵楼',
+    category: 'college',
+    campusId: 'l',
+    coord: [118.272596,35.186061],
+    desc: '临沂校区学院楼。'
+  },
+  {
+    id: 'l_hospital_01',
+    name: '校医院',
+    category: 'hospital',
+    campusId: 'l',
+    coord: [118.269555,35.187855],
+    desc: '临沂校区校医院，负责日常就诊与体检。'
+  },
+  {
+    id: 'l_canteen_01',
+    name: '西餐厅（文苑餐厅）',
+    category: 'canteen',
+    campusId: 'l',
+    coord: [118.269615,35.187218],
+    desc: '临沂校区西侧餐厅。'
+  },
+  {
+    id: 'l_canteen_02',
+    name: '东餐厅（知苑餐厅）',
+    category: 'canteen',
+    campusId: 'l',
+    coord: [118.274048,35.187027],
+    desc: '临沂校区东侧餐厅。'
+  },
+  {
+    id: 'l_dormitory_01',
+    name: '一号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.270121,35.188731],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_02',
+    name: '二号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.270664,35.188736],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_03',
+    name: '三号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.271207,35.188741],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_04',
+    name: '四号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.271750,35.188746],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_05',
+    name: '五号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.272293,35.188751],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_06',
+    name: '六号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.272836,35.188756],
+    desc: '临沂校区北区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_07',
+    name: '七号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.270121,35.185219],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_08',
+    name: '八号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.270664,35.185224],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_09',
+    name: '九号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.271207,35.185229],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_10',
+    name: '十号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.271750,35.185234],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_11',
+    name: '十一号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.272293,35.185239],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_dormitory_12',
+    name: '十二号公寓',
+    category: 'dormitory',
+    campusId: 'l',
+    coord: [118.272836,35.185244],
+    desc: '临沂校区南区学生公寓。'
+  },
+  {
+    id: 'l_sports_01',
+    name: '西操场',
+    category: 'sports',
+    campusId: 'l',
+    coord: [118.268426,35.186497],
+    desc: '临沂校区西侧田径运动场。'
+  },
+  {
+    id: 'l_sports_02',
+    name: '东操场',
+    category: 'sports',
+    campusId: 'l',
+    coord: [118.274562,35.186252],
+    desc: '临沂校区东侧田径运动场。'
+  },
+  {
+    id: 'l_sports_03',
+    name: '体育馆',
+    category: 'sports',
+    campusId: 'l',
+    coord: [118.273521,35.188028],
+    desc: '临沂校区室内体育馆，供室内课程与比赛使用。'
   }
 ]
