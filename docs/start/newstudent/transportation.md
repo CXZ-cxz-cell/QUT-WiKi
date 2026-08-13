@@ -3,6 +3,8 @@ top: 4
 contributors:
   - name: 黎蛰
     avatar: https://pic1.imgdb.cn/i/033zzgyXaoNhqfbogN34rr.webp
+  - name: 22Milan33
+    avatar: https://pic1.imgdb.cn/i/0343ugLQsM4mN4IdcZ6Ayi.webp
 ---
 
 # 交通出行
@@ -48,6 +50,13 @@ contributors:
 
 ## 临沂校区
 
+### 校内交通
+
+- 校内设有多处电动车充电站，但自2026年9月起，不再受理登记新的电动车校内牌照，自行车不受限制。
+
+### 校外交通
+
+- 目前在长途汽车站换乘中心乘坐K57可达学校门口。
 
 ## 交通卡
 

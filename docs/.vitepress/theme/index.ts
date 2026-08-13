@@ -4,6 +4,7 @@ import Gallery from './components/Gallery.vue'
 import AppCards from './components/AppCards.vue'
 import Flink from './components/Flink.vue'
 import Flinks from './components/Flinks.vue'
+import MapView from './components/MapView.vue'
 import './style.css'
 
 export default {
@@ -15,5 +16,6 @@ export default {
     app.component('Flink', Flink)
     app.component('flink', Flink)
     app.component('Flinks', Flinks)
+    app.component('MapView', MapView)
   },
 }

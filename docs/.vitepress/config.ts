@@ -330,6 +330,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       ...majorSections,
+      { text: '学校地图', link: '/map' },
       { text: '友情链接', link: '/flink' }
     ],
     sidebar: {
@@ -349,7 +350,7 @@ export default defineConfig({
     ],
     footer: {
       message: `基于 VitePress 构建  ·  全站共计 <span style="color:rgb(1,93,149)">${totalK}K</span> 字`,
-      copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a>'
+      copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a><br>本站内容采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" style="color:inherit;">CC BY-NC-SA 4.0</a> 声明'
     },
     outline: { level: [2, 3], label: '本页导航' },
     sidebarMenuLabel: '本站目录',
