@@ -1,4 +1,4 @@
-*.md linguist-documentation=false
+*.md linguist-detectable=true
 docs/** linguist-documentation=false
 
 docs/.vitepress/dist/** linguist-generated=true
