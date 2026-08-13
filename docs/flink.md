@@ -16,6 +16,11 @@ pageClass: flink-page
       avatar: https://pic.imgdb.cn/i/033pp0Ajx1ko6wLY34CD4n.webp
       descr: 写给大学生的电脑科普&购买一体方案
       siteshot: https://pic.imgdb.cn/i/033pCCZhDIJ8B8mzRZIVW7.webp
+    - name: QUTACM
+      link: http://8.140.233.20/
+      avatar: https://pic1.imgdb.cn/i/0345cIGXvGIbe6XaXK0Q1p.webp
+      descr: 青岛理工大学OJ网站
+      siteshot: https://pic1.imgdb.cn/i/0345cLRdvZheR4KGEELPjD.webp
 
 
 
