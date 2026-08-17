@@ -21,6 +21,11 @@ pageClass: flink-page
       avatar: https://pic1.imgdb.cn/i/0345cIGXvGIbe6XaXK0Q1p.webp
       descr: 青岛理工大学OJ网站
       siteshot: https://pic1.imgdb.cn/i/0345cLRdvZheR4KGEELPjD.webp
+    - name: 南京理工大学生存手册
+      link: https://manual.njust.wiki
+      descr: 南京理工大学生存手册 你的一站式信息平台
+      avatar: https://pic1.imgdb.cn/i/0348ot4viIFmtlHLQLp6QF.webp
+      siteshot: https://pic1.imgdb.cn/i/0348ov6CFYmPUPpQqtCGKw.webp
 
 
 
@@ -28,13 +33,28 @@ pageClass: flink-page
 
 ## 申请友链
 
-有申请友链意向者，可以携带一下参数发送到我的邮箱[lucasandrew0120@outlook.com](mailto:lucasandrew0120@outlook.com)
+申请友链应具备一下条件:
 
-| 参数 | 必填 | 说明 |
-| --- | --- | --- |
-| `name` | ✅ | 站点名称 |
-| `link` | ✅ | 站点链接（建议 https） |
-| `avatar` | ❌ | 头像图片链接 |
-| `descr` | ❌ | 站点描述（也兼容 `desc`） |
-| `siteshot` | ❌ | 友链卡片背景图链接 |
+- 站点内容健康（无大面积广告和引流），符合国家法律法规
+- 网站支持HTTPS链接，国内可稳定访问
+- 申请友链前，应先在贵站添加本站链接
+
+有申请友链意向者，可以携带以下示例参数发送到邮箱[lucasandrew0120@outlook.com](mailto:lucasandrew0120@outlook.com)
+
+
+```YAML
+- name: 站点名称  
+  link: 支持HTTPS的站点链接  
+  avatar: 站点logo或头像链接
+  descr: 简略描述站点内容
+  siteshot: 站点截图链接
+```
+
+## 本站友链信息
+
+- 名称: 青岛理工大学生活指南
+- 链接: https://wiki.quters.top
+- logo: **本站logo还未敲定，故空缺**
+- 描述: 为青岛理工大学学生提供便捷的生活信息和资源
+- 网站截图: https://pic1.imgdb.cn/i/0348pQGC63k9KpccUZuFSG.webp
 
