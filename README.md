@@ -9,7 +9,12 @@
 ```bash
 npm ci
 npm run dev       # 启动开发服务器 http://localhost:5173
-npm run build     # 构建生产版本
+```
+
+使用 PowerShell 构建并启动本地开发服务器：
+
+```powershell
+./build.ps1
 ```
 
 网站基于 [VitePress](https://vitepress.dev/) 构建，文档使用 Markdown 编写。

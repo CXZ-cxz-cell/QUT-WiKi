@@ -66,7 +66,7 @@ npm run dev
 如需本地构建，请使用 PowerShell 运行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1
+./build.ps1
 ```
 
 ---
@@ -165,5 +165,5 @@ git push origin contribute
 - 引用资料注明出处，个人信息须经本人同意
 - 不要在图片说明、链接或表格中嵌入脚本、事件属性或不受信任的远程资源
 - 如果没有修改依赖，请不要提交 `package.json` 或 `package-lock.json` 的变化
-- 本地构建统一使用 PowerShell 执行 `powershell -ExecutionPolicy Bypass -File .\build.ps1`
+- 本地构建统一使用 PowerShell 执行 `./build.ps1`
 - 收到 review 后在同一分支继续修改并 push 即可

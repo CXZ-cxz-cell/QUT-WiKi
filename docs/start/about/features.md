@@ -302,7 +302,7 @@ contributors:
 项目根目录的 `build.ps1` 一键构建并启动开发服务器：
 
 ```powershell
-.\build.ps1
+./build.ps1
 ```
 
 流程：生成贡献者数据 → `npm run build` → 清理 5173 端口旧进程 → `npm run dev`
