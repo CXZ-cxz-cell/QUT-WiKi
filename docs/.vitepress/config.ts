@@ -316,7 +316,7 @@ export default defineConfig({
         const token = tokens[idx]
         const alt = token.content || token.attrGet('alt') || ''
         let html = origImg(tokens, idx, options, env, self)
-        if (alt) html += `<span class="img-caption">${alt}</span>`
+        if (alt) html += `<span class="img-caption">${md.utils.escapeHtml(alt)}</span>`
         return html
       }
     },
