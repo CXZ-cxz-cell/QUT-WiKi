@@ -30,7 +30,7 @@ git clone https://github.com/YOUR_USERNAME/QUT-WiKi.git
 cd QUT-WiKi
 
 # 添加源仓库为 upstream，后续用于同步官方分支
-git remote add upstream https://github.com/LucasAndrew0120/QUT-WiKi.git
+git remote add upstream https://github.com/QUT-Lib/QUT-WiKi.git
 git fetch upstream
 ```
 
