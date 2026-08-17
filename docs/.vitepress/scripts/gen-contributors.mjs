@@ -278,7 +278,7 @@ function main() {
       getManualContributors(resolve(docsDir, file))
     )
     if (contributors.length > 0) {
-      result[file] = contributors
+      result[file] = contributors.map(({ email, ...publicContributor }) => publicContributor)
     }
   }
 
