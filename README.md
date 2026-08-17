@@ -4,8 +4,10 @@
 
 ## 本地开发
 
+需要 Node.js 22.17 或更高版本。依赖安装优先使用 `npm ci`，避免无意改动锁文件。
+
 ```bash
-npm install
+npm ci
 npm run dev       # 启动开发服务器 http://localhost:5173
 npm run build     # 构建生产版本
 ```
@@ -31,15 +33,26 @@ npm run build     # 构建生产版本
 ├── build.ps1                   # Windows 本地开发启动脚本
 ├── package.json
 ├── README.md
+├── vendor/                     # 已核验并固定摘要的第三方依赖归档
+│   └── xlsx-0.20.3.tgz
+├── code/                       # 腾讯文档 XLSX 同步服务
+│   ├── Dockerfile              # 非 root 生产镜像
+│   ├── server.mjs              # HTTP 服务入口
+│   ├── xlsx-sync.mjs           # Chromium 同步及资源限制
+│   └── vendor/                 # 后端独立 npm 项目的依赖归档
 │
 └── docs/                       # VitePress 文档根目录
     ├── index.md                # 首页
     ├── public/
+    │   ├── _headers            # 静态站安全响应头
     │   └── _redirects          # 静态重定向规则
     │
     ├── .vitepress/             # VitePress 配置与主题
     │   ├── config.ts           # 站点配置
     │   ├── contributors-mapping.json
+    │   ├── plugins/
+    │   │   ├── flink-block.ts  # 友情链接块解析
+    │   │   └── xlsx-table.ts   # XLSX 卡片渲染
     │   ├── scripts/
     │   │   └── gen-contributors.mjs   # 贡献者信息生成
     │   └── theme/
