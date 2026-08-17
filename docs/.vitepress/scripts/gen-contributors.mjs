@@ -1,4 +1,4 @@
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 import { writeFileSync, readFileSync, readdirSync, statSync, existsSync } from 'fs'
 import { resolve, relative, extname, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -43,8 +43,9 @@ function extractGitHubUsername(email) {
 
 function getContributors(relPath) {
   try {
-    const output = execSync(
-      `git log --follow --format="%an|%ae" -- "${relPath}"`,
+    const output = execFileSync(
+      'git',
+      ['log', '--follow', '--format=%an|%ae', '--', relPath],
       { encoding: 'utf-8', cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 }
     )
     const lines = output.trim().split('\n').filter(Boolean)
