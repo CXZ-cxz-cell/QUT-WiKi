@@ -11,6 +11,11 @@ pageClass: flink-page
 
 <flink>
   
+    - name: QUTCraft
+      link: https://blog.qutcraft.cn/
+      avatar: https://pic1.imgdb.cn/i/033yyax4NtOd7cJXhYTXGJ.svg
+      descr: 青岛理工大学 Minecraft 社（筹）是一个面向全校 Minecraft 爱好者的文化活动类学生社团。
+      siteshot: https://pic1.imgdb.cn/i/0349BPq7AAga9WhU4K7n0g.webp
     - name: MOE 购机指南
       link: https://moe.lkyu.cf/
       avatar: https://pic.imgdb.cn/i/033pp0Ajx1ko6wLY34CD4n.webp
@@ -54,7 +59,7 @@ pageClass: flink-page
 
 - 名称: 青岛理工大学生活指南
 - 链接: https://wiki.quters.top
-- logo: **本站logo还未敲定，故空缺**
+- logo: https://pic1.imgdb.cn/i/0349CJDwh8unZcsqAsJ6kw.png
 - 描述: 为青岛理工大学学生提供便捷的生活信息和资源
 - 网站截图: https://pic1.imgdb.cn/i/0348pQGC63k9KpccUZuFSG.webp
 
