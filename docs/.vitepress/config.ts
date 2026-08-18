@@ -322,7 +322,7 @@ export default defineConfig({
     },
   },
   head: [
-    ['link', { rel: 'icon', href: 'https://pic1.imgdb.cn/i/0349CJDwh8unZcsqAsJ6kw.png' }],
+    ['link', { rel: 'icon', href: 'https://pic1.imgdb.cn/i/0349E4NqLje1oLHNowvJ4R.png' }],
     ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
     ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
     ['script', { src: 'https://umami.lris625.top/script.js', 'data-website-id': '1f32faca-51d3-4c90-a8b0-581e3c649c92', defer: '' }],
