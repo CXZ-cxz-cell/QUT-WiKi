@@ -31,6 +31,11 @@ pageClass: flink-page
       descr: 南京理工大学生存手册 你的一站式信息平台
       avatar: https://pic1.imgdb.cn/i/0348ot4viIFmtlHLQLp6QF.webp
       siteshot: https://pic1.imgdb.cn/i/0348ov6CFYmPUPpQqtCGKw.webp
+    - name: 青岛大学 Wiki
+      link: https://iceoftea.github.io/QDU-Wiki/
+      descr: 青岛大学Wiki，【青岛大学吧】出品
+      avatar: https://pic1.imgdb.cn/i/034Bcfvcsb7jmd4RabMVIG.webp
+      siteshot: https://pic1.imgdb.cn/i/034BcdOT3qatoGK7PLSnjp.webp
 
 
 
@@ -44,7 +49,7 @@ pageClass: flink-page
 - 网站支持HTTPS链接，国内可稳定访问
 - 申请友链前，应先在贵站添加本站链接
 
-有申请友链意向者，可以携带以下示例参数发送到邮箱[lucasandrew0120@outlook.com](mailto:lucasandrew0120@outlook.com)
+有申请友链意向者，可以携带以下示例参数发送到邮箱[lucasandrew0120@outlook.com](mailto:lucasandrew0120@outlook.com)或提交在[项目Issues](https://github.com/QUT-Lib/QUT-WiKi/issues)中，管理员会在收到申请后尽快处理。
 
 
 ```YAML
@@ -59,7 +64,7 @@ pageClass: flink-page
 
 - 名称: 青岛理工大学生活指南
 - 链接: https://wiki.quters.top
-- logo: https://pic1.imgdb.cn/i/0349CJDwh8unZcsqAsJ6kw.png
+- logo: https://pic1.imgdb.cn/i/0349E4NqLje1oLHNowvJ4R.png
 - 描述: 为青岛理工大学学生提供便捷的生活信息和资源
-- 网站截图: https://pic1.imgdb.cn/i/0348pQGC63k9KpccUZuFSG.webp
+- 网站截图: https://pic1.imgdb.cn/i/034C0yWdICJxgwsV9UPSW6.webp
 
