@@ -53,6 +53,13 @@ const contributorMeta = [
       { text: 'GitHub', url: 'https://github.com/22Milan33' },
     ],
   },
+  {
+    name: 'Chen-qwq',
+    tags: [],
+    links: [
+      { text: 'GitHub', url: 'https://github.com/Chen-qwq' },
+    ],
+  }
 ]
 
 const contributors = contributorMeta.map((item) => {
