@@ -5,7 +5,7 @@ import { execFileSync } from 'child_process'
 import XLSX from 'xlsx'
 
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
-const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://sync.wiki.quters.top'
+const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://syncwiki.quters.top'
 const CACHE_TTL = 3600000
 const FORCE_XLSX_SYNC = process.env.QUTWIKI_XLSX_FORCE === '1'
 const MAX_XLSX_BYTES = 20 * 1024 * 1024
