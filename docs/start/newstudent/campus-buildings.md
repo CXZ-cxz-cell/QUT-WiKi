@@ -121,7 +121,7 @@ contributors:
 
 ## 临沂校区
 
-![临沂校区](https://pic1.imgdb.cn/i/0343ucDwM6G0IA084jMpnp.webp)
+![临沂校区](https://pic1.imgdb.cn/i/034ECaS7excD89zNKeCtPa.webp)
 
 ### 教学楼
 
