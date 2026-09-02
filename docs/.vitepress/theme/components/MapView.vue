@@ -1503,9 +1503,10 @@ html.dark .map-section {
     display: flex;
   }
   .map-detail-card {
+    position: fixed;
     right: 8px;
     left: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom) + var(--qut-browser-bottom-inset, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom));
   }
   .recenter-btn {
     right: 8px;
