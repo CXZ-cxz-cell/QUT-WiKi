@@ -414,7 +414,7 @@ export const BUILDINGS = [
     category: 'express',
     campusId: 'h',
     coord: [120.202863,35.976703],
-    desc: '位于西操场下（西操场东侧），收取 200 号以上的快递（中通、圆通、申通、韵达、极兔等）。'
+    desc: '位于西操场下（西操场东侧），收取 200 号以下的快递（中通、圆通、申通、韵达、极兔等）。'
   },
   {
     id: 'h_express_02',
@@ -422,7 +422,7 @@ export const BUILDINGS = [
     category: 'express',
     campusId: 'h',
     coord: [120.208302,35.976257],
-    desc: '位于东区公寓楼下，收取 200 号以下的快递（中通、圆通、申通、韵达、极兔等）。'
+    desc: '位于东区公寓楼下，收取 200 号以上的快递（中通、圆通、申通、韵达、极兔等）。'
   },
   {
     id: 'h_express_03',

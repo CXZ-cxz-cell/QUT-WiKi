@@ -30,12 +30,23 @@ const searchKeyword = ref('')
 const sidebarOpen = ref(false)
 const selected = ref(null)
 const hoverTip = ref(null)
+const locationDialogOpen = ref(false)
+const locationDialogBackdrop = ref(null)
+const locating = ref(false)
+const locationError = ref('')
+const routeSummary = ref(null)
+const locationReady = ref(false)
+const detailPosition = ref(null)
 
 let markerCache = new Map()
 let polygonsRef = null
+let locationMarker = null
+let routeLine = null
+let locationWatchId = null
 let searchTimer = null
 let hoverCloseTimer = null
 let destroyFlag = false
+let visualViewport = null
 
 /* ================= 派生数据 ================= */
 const campusBuildings = computed(() =>
@@ -166,6 +177,179 @@ function navigationLinksFor(b) {
   ]
 }
 
+function loadAMapPlugins(names) {
+  return new Promise((resolve, reject) => {
+    AMap.plugin(names, () => resolve())
+    setTimeout(() => reject(new Error('高德地图定位或路线插件加载超时')), 10000)
+  })
+}
+
+function formatDistance(meters) {
+  if (meters < 1000) return `${Math.round(meters)} 米`
+  return `${(meters / 1000).toFixed(1)} 公里`
+}
+
+function clearRoute() {
+  if (routeLine && map) {
+    try { map.remove(routeLine) } catch (e) { /* noop */ }
+  }
+  routeLine = null
+  routeSummary.value = null
+}
+
+function drawRoute(result) {
+  const route = result?.routes?.[0]
+  const path = route?.steps?.flatMap((step) => step.path || []) || []
+  if (!route || !path.length || !map) {
+    routeSummary.value = null
+    locationError.value = '没有找到可用的步行路线，请稍后重试。'
+    return
+  }
+  clearRoute()
+  routeLine = new AMap.Polyline({
+    path,
+    strokeColor: '#1677ff',
+    strokeWeight: 6,
+    strokeOpacity: 0.85,
+    lineJoin: 'round',
+    lineCap: 'round',
+    zIndex: 40
+  })
+  map.add(routeLine)
+  routeSummary.value = {
+    distance: formatDistance(route.distance),
+    duration: route.time ? `${Math.max(1, Math.round(route.time / 60))} 分钟` : ''
+  }
+  map.setFitView([routeLine, locationMarker].filter(Boolean), false, [60, 110, 170, 60])
+}
+
+function routeToSelected() {
+  if (!locationReady.value || !selected.value || !map) return
+  locationError.value = ''
+  const walking = new AMap.Walking({ map: null, autoFitView: false })
+  walking.search(locationMarker.getPosition(), selected.value.coord, (status, result) => {
+    if (destroyFlag) return
+    if (status === 'complete') drawRoute(result)
+    else locationError.value = '路线规划失败，请检查网络后重试。'
+  })
+}
+
+function updateLocation(position) {
+  if (destroyFlag || !map || !AMap || !position) return
+  locationReady.value = true
+  if (locationMarker) {
+    locationMarker.setPosition(position)
+  } else {
+    locationMarker = new AMap.Marker({
+      position,
+      content: '<div class="qut-location-marker" aria-label="我的位置"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-3.87 0-7 3.13-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Z" fill="#e53935" stroke="rgba(255,255,255,0.9)" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="8" r="2" fill="#fff"/><path d="M8.5 15.5c.35-2.1 1.65-3.5 3.5-3.5s3.15 1.4 3.5 3.5" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>',
+      offset: new AMap.Pixel(-14, -28),
+      zIndex: 100
+    })
+    map.add(locationMarker)
+  }
+  if (selected.value) routeToSelected()
+}
+
+function recenterLocation() {
+  if (!map || !locationMarker) return
+  map.setCenter(locationMarker.getPosition())
+}
+
+function syncDetailPosition() {
+  if (!map || !selected.value || !window.matchMedia('(max-width: 1024px)').matches) {
+    detailPosition.value = null
+    return
+  }
+  const { x, y } = map.lngLatToContainer(selected.value.coord)
+  const mapWidth = mapEl.value?.clientWidth || 0
+  detailPosition.value = {
+    x: Math.max(170, Math.min(mapWidth - 170, x)),
+    y: Math.max(12, y - PIN_SIZE)
+  }
+}
+
+function onBrowserLocation(position) {
+  const [lng, lat] = [position.coords.longitude, position.coords.latitude]
+  // 浏览器返回 WGS84，高德地图底图使用 GCJ02。
+  AMap.convertFrom([lng, lat], 'gps', (status, result) => {
+    if (destroyFlag || status !== 'complete' || !result?.locations?.[0]) return
+    const wasReady = locationReady.value
+    locationError.value = ''
+    updateLocation(result.locations[0])
+    if (!wasReady) map.setCenter(result.locations[0])
+  })
+}
+
+function onBrowserLocationError() {
+  locating.value = false
+  if (!locationReady.value) locationError.value = '无法获取当前位置，请检查浏览器的位置权限后重试。'
+}
+
+function finishLocationRequest() {
+  locationDialogOpen.value = false
+  // Hide the permission explainer synchronously. Edge rejects permission
+  // requests while a full-screen overlay is still visually present.
+  if (locationDialogBackdrop.value) locationDialogBackdrop.value.style.display = 'none'
+  if (!map || !AMap || !navigator.geolocation) {
+    locationError.value = '当前浏览器不支持定位功能。'
+    return
+  }
+  if (locationWatchId != null) navigator.geolocation.clearWatch(locationWatchId)
+  locating.value = true
+  locationError.value = ''
+  // 先用一次性定位触发授权，再开启持续监听，兼容 Edge 移动端的授权时序。
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      locating.value = false
+      onBrowserLocation(position)
+      locationWatchId = navigator.geolocation.watchPosition(
+        onBrowserLocation,
+        onBrowserLocationError,
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      )
+    },
+    onBrowserLocationError,
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+  )
+}
+
+function requestLocation() {
+  if (locationDialogOpen.value || locating.value) return
+  locationDialogOpen.value = true
+}
+
+function cancelLocationRequest() {
+  locationDialogOpen.value = false
+}
+
+function updateBrowserBottomInset() {
+  if (!window.visualViewport) return
+  const viewport = window.visualViewport
+  const visibleBottom = viewport.offsetTop + viewport.height
+  const browserInset = Math.max(0, window.innerHeight - visibleBottom)
+  document.documentElement.style.setProperty('--qut-browser-bottom-inset', `${browserInset}px`)
+}
+
+function startVisualViewportObserver() {
+  visualViewport = window.visualViewport
+  if (!visualViewport) return
+  updateBrowserBottomInset()
+  visualViewport.addEventListener('resize', updateBrowserBottomInset)
+  visualViewport.addEventListener('scroll', updateBrowserBottomInset)
+  window.addEventListener('resize', updateBrowserBottomInset)
+}
+
+function stopVisualViewportObserver() {
+  if (visualViewport) {
+    visualViewport.removeEventListener('resize', updateBrowserBottomInset)
+    visualViewport.removeEventListener('scroll', updateBrowserBottomInset)
+  }
+  window.removeEventListener('resize', updateBrowserBottomInset)
+  document.documentElement.style.removeProperty('--qut-browser-bottom-inset')
+  visualViewport = null
+}
+
 /* ================= 地图初始化 ================= */
 function initMap() {
   const campus = CAMPUS_CONFIG[currentCampus.value]
@@ -176,6 +360,8 @@ function initMap() {
     viewMode: '2D',
     scrollWheel: true
   })
+  map.on('mapmove', syncDetailPosition)
+  map.on('zoomchange', syncDetailPosition)
   renderPolygons(campus.id)
   mapReady.value = true
 }
@@ -331,12 +517,17 @@ function onSelect(b) {
     }
     hoverTip.value = null
     map.panTo(b.coord)
+    syncDetailPosition()
+    window.setTimeout(syncDetailPosition, 250)
   }
-  if (window.matchMedia('(max-width: 767px)').matches) sidebarOpen.value = false
+  if (locationReady.value) routeToSelected()
+  if (window.matchMedia('(max-width: 1024px)').matches) sidebarOpen.value = false
 }
 
 function clearSelection() {
   selected.value = null
+  detailPosition.value = null
+  clearRoute()
   for (const [, entry] of markerCache) {
     applyPinState(entry.root, false)
     entry.marker.setzIndex(10)
@@ -356,6 +547,7 @@ function selectCampus(e) {
     clearMarkerCache()
     renderPolygons(next)
     renderMarkers()
+    clearRoute()
   }
 }
 
@@ -405,6 +597,7 @@ function startThemeObserver() {
 async function bootstrap() {
   try {
     AMap = await loadAMap()
+    await loadAMapPlugins(['AMap.Geolocation', 'AMap.Walking'])
     await nextTick()
     initMap()
     renderMarkers()
@@ -422,6 +615,7 @@ function retry() {
 }
 
 onMounted(() => {
+  startVisualViewportObserver()
   bootstrap()
 })
 
@@ -433,6 +627,13 @@ onUnmounted(() => {
   }
   clearHoverCloseTimer()
   if (searchTimer) clearTimeout(searchTimer)
+  stopVisualViewportObserver()
+  clearRoute()
+  if (locationMarker && map) {
+    try { map.remove(locationMarker) } catch (e) { /* noop */ }
+  }
+  if (locationWatchId != null && navigator.geolocation) navigator.geolocation.clearWatch(locationWatchId)
+  locationWatchId = null
   if (map) {
     try { map.destroy() } catch (e) { /* noop */ }
     map = null
@@ -453,6 +654,10 @@ onUnmounted(() => {
         <svg class="campus-caret" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <div class="map-header-right">
+        <button class="location-btn location-header-btn" type="button" :disabled="!mapReady || locating" @click="requestLocation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          {{ locating ? '定位中' : '显示定位' }}
+        </button>
         <button class="mobile-list-btn" aria-label="打开地点列表" @click="sidebarOpen = true">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
         </button>
@@ -540,18 +745,42 @@ onUnmounted(() => {
         </div>
 
         <!-- 移动端：打开地点列表浮层按钮（仅小屏显示） -->
-        <button
-          v-if="!sidebarOpen"
-          type="button"
-          class="mobile-open-list"
-          aria-label="打开地点列表"
-          @click="sidebarOpen = true"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h20"/><path d="M6 12h12"/><path d="M9 19h6"/></svg>
-          {{ filteredBuildings.length }} 个地点
-        </button>
+        <div v-if="!sidebarOpen" class="mobile-map-actions">
+          <button
+            type="button"
+            class="mobile-open-list"
+            aria-label="打开地点列表"
+            @click="sidebarOpen = true"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h20"/><path d="M6 12h12"/><path d="M9 19h6"/></svg>
+            {{ filteredBuildings.length }} 个地点
+          </button>
+          <button
+            type="button"
+            class="location-btn mobile-location-btn"
+            :disabled="!mapReady || locating"
+            aria-label="显示定位"
+            @click="requestLocation"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <span>显示定位</span>
+          </button>
+        </div>
+        <p v-if="locationError && !selected" class="location-status" role="status">{{ locationError }}</p>
 
         <!-- 缩放控件 -->
+        <button
+          v-if="locationReady"
+          type="button"
+          class="recenter-btn"
+          :class="{ 'recenter-btn-raised': selected }"
+          aria-label="重新定位到我的位置"
+          @click="recenterLocation"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <span>重定位</span>
+        </button>
+
         <div class="map-zoom-ctrl">
           <button class="zoom-btn" aria-label="放大地图" :disabled="!mapReady" @click="map && map.zoomIn()">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -574,6 +803,11 @@ onUnmounted(() => {
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
           </div>
+          <div v-if="routeSummary" class="route-summary" role="status">
+            <strong>步行约 {{ routeSummary.distance }}</strong>
+            <span v-if="routeSummary.duration">预计 {{ routeSummary.duration }}</span>
+          </div>
+          <p v-if="locationError" class="location-error">{{ locationError }}</p>
           <div class="nav-btns">
             <a
               v-for="link in navigationLinksFor(selected)"
@@ -588,6 +822,22 @@ onUnmounted(() => {
           </div>
         </section>
       </div>
+    </div>
+    <div v-if="locationDialogOpen" ref="locationDialogBackdrop" class="location-dialog-backdrop" role="presentation">
+      <section class="location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-dialog-title">
+        <div class="location-dialog-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </div>
+        <h2 id="location-dialog-title">允许获取你的当前位置</h2>
+        <p>定位信息仅用于在地图上标记你的位置，并规划到所选地点的步行路线，不会被保存。</p>
+        <div class="location-legend" aria-label="地图图标说明">
+          <span><i class="legend-pin legend-pin-user"></i>红色图标：用户定位</span>
+          <span><i class="legend-pin legend-pin-place"></i>蓝色图标：可点击标点</span>
+        </div>
+        <p class="location-countdown">点击继续后将请求定位权限，并持续更新你的位置。</p>
+        <button type="button" class="location-confirm" @click="finishLocationRequest">继续</button>
+        <button type="button" class="location-cancel" @click="cancelLocationRequest">暂不定位</button>
+      </section>
     </div>
   </section>
 </template>
@@ -696,6 +946,21 @@ html.dark .map-section {
   flex-shrink: 0;
   margin-left: auto;
 }
+.location-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--c-line);
+  border-radius: 6px;
+  background: var(--c-paper);
+  color: var(--c-icon-strong);
+  font-size: 12px;
+  cursor: pointer;
+}
+.location-btn:hover:not(:disabled) { border-color: var(--c-primary); color: var(--c-primary); }
+.location-btn:disabled { color: var(--c-muted); cursor: not-allowed; }
 .mobile-list-btn {
   display: none;
   width: 32px;
@@ -994,6 +1259,32 @@ html.dark .map-section {
   background: var(--c-panel);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
+.recenter-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--c-line);
+  border-radius: 6px;
+  background: var(--c-panel);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  color: var(--c-icon-strong);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.recenter-btn:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+.recenter-btn-raised {
+  bottom: 154px;
+}
 .zoom-btn {
   width: 40px;
   height: 40px;
@@ -1031,6 +1322,36 @@ html.dark .map-section {
   background: var(--c-elev);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
   animation: detail-in 0.2s ease-out;
+}
+.route-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--c-primary-soft);
+  color: var(--c-primary);
+  font-size: 12px;
+}
+.route-summary strong { font-size: 13px; }
+.route-summary span { color: var(--c-muted); }
+.location-error { margin: 8px 0 0; color: #c2410c; font-size: 12px; }
+.location-status {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 12;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(194, 65, 12, 0.2);
+  border-radius: 6px;
+  background: var(--c-elev);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  color: #c2410c;
+  font-size: 12px;
+  transform: translateX(-50%);
 }
 @keyframes detail-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -1112,6 +1433,12 @@ html.dark .map-section {
 .mobile-open-list {
   display: none;
 }
+.mobile-location-btn {
+  display: none;
+}
+.mobile-map-actions {
+  display: none;
+}
 
 .sr-only {
   position: absolute;
@@ -1126,15 +1453,24 @@ html.dark .map-section {
 }
 
 /* ===== 移动端 ===== */
-@media (max-width: 767px) {
-  .mobile-list-btn {
-    display: grid;
+@media (max-width: 1024px) {
+  .location-header-btn {
+    display: none;
   }
-  .mobile-open-list {
+  .mobile-list-btn {
+    display: none;
+  }
+  .mobile-map-actions {
     position: absolute;
     top: 12px;
     left: 12px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mobile-open-list {
+    position: static;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1169,8 +1505,115 @@ html.dark .map-section {
   .map-detail-card {
     right: 8px;
     left: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom) + var(--qut-browser-bottom-inset, 0px));
+  }
+  .recenter-btn {
+    right: 8px;
+    bottom: calc(18px + env(safe-area-inset-bottom) + var(--qut-browser-bottom-inset, 0px));
+  }
+  .recenter-btn-raised {
+    bottom: calc(170px + env(safe-area-inset-bottom) + var(--qut-browser-bottom-inset, 0px));
+  }
+  .mobile-location-btn {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 40px;
+    gap: 6px;
+    padding: 0 12px;
+    border: 1px solid var(--c-line);
+    border-radius: 6px;
+    background: var(--c-panel);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--c-icon-strong);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .mobile-location-btn:hover:not(:disabled) {
+    background: var(--c-mist);
+  }
+  .mobile-location-btn:disabled {
+    color: var(--c-icon-strong);
+    cursor: not-allowed;
   }
 }
+
+.location-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
+}
+.location-dialog {
+  width: min(360px, 100%);
+  padding: 24px;
+  border: 1px solid var(--c-line);
+  border-radius: 12px;
+  background: var(--c-elev);
+  color: var(--c-ink);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.22);
+  text-align: center;
+}
+.location-dialog-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--c-primary-soft);
+  color: var(--c-primary);
+}
+.location-dialog h2 { margin: 0; font-size: 18px; }
+.location-dialog p { margin: 10px 0 0; color: var(--c-muted); font-size: 13px; line-height: 1.6; }
+.location-dialog .location-countdown { font-size: 12px; }
+.location-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--c-primary-faint);
+  color: var(--c-muted);
+  font-size: 12px;
+  text-align: left;
+}
+.location-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.legend-pin {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border: 1px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.25);
+  transform: rotate(-45deg);
+}
+.legend-pin-user { background: #e53935; }
+.legend-pin-place { background: var(--c-primary); }
+.location-confirm, .location-cancel {
+  width: 100%;
+  height: 36px;
+  margin-top: 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.location-confirm { border: 1px solid var(--c-primary); background: var(--c-primary); color: #fff; }
+.location-confirm:disabled { opacity: 0.55; cursor: not-allowed; }
+.location-cancel { margin-top: 8px; border: none; background: transparent; color: var(--c-muted); }
 </style>
 
 <style>
@@ -1208,5 +1651,10 @@ html.dark .map-section {
 }
 .qut-pin-root > [data-map-pin-body] > span {
   pointer-events: none;
+}
+.qut-location-marker {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 1px 2px rgb(15 23 42 / 0.2));
 }
 </style>

@@ -1,39 +1,21 @@
-import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'fs'
-import { resolve, join, dirname } from 'path'
+import { existsSync, mkdirSync, readFileSync, realpathSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'fs'
+import { resolve, join, dirname, isAbsolute, relative } from 'path'
 import { tmpdir } from 'os'
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 import XLSX from 'xlsx'
 
 const DANGER = 'style="color:#d32f2f;font-weight:bold"'
-const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://sync.wiki.quters.top'
+const TEN_API = process.env.QUTWIKI_XLSX_API || 'https://syncwiki.quters.top'
 const CACHE_TTL = 3600000
 const FORCE_XLSX_SYNC = process.env.QUTWIKI_XLSX_FORCE === '1'
+const MAX_XLSX_BYTES = 20 * 1024 * 1024
+const MAX_SHEETS = 20
+const MAX_ROWS = 5000
+const MAX_COLUMNS = 100
 
 function esc(s: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }
   return s.replace(/[&<>"]/g, c => map[c] || c)
-}
-
-function syncDownloadFile(url: string): Buffer | null {
-  const tmpFile = join(tmpdir(), `xlsx_${Date.now()}_${Math.random().toString(36).slice(2)}.xlsx`)
-  const scriptFile = join(tmpdir(), `xlsx_dl_${Date.now()}.js`)
-  writeFileSync(scriptFile, [
-    'var fs=require("fs");',
-    'fetch(' + JSON.stringify(url) + ')',
-    '  .then(function(r) { if(!r.ok) throw new Error(r.status); return r.arrayBuffer() })',
-    '  .then(function(b) { fs.writeFileSync(' + JSON.stringify(tmpFile) + ', Buffer.from(b)) })',
-    '  .catch(function() { process.exit(1) })',
-  ].join('\n'))
-  try {
-    execSync(`node "${scriptFile}"`, { timeout: 30000, stdio: 'pipe', windowsHide: true })
-    const buf = readFileSync(tmpFile)
-    return buf
-  } catch {
-    return null
-  } finally {
-    try { unlinkSync(tmpFile) } catch {}
-    try { unlinkSync(scriptFile) } catch {}
-  }
 }
 
 function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
@@ -56,12 +38,13 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     'https.get(' + JSON.stringify(apiUrl) + ', function(res) {',
     '  if(res.statusCode!==200) process.exit(1);',
     '  var chunks=[];',
-    '  res.on("data",function(c){chunks.push(c)});',
+    '  var size=0;',
+    '  res.on("data",function(c){size+=c.length;if(size>' + MAX_XLSX_BYTES + '){res.destroy();process.exit(1)}chunks.push(c)});',
     '  res.on("end",function(){fs.writeFileSync(' + JSON.stringify(tmpFile) + ',Buffer.concat(chunks))});',
     '}).on("error",function(){process.exit(1)});',
   ].join('\n'))
   try {
-    execSync(`node "${scriptFile}"`, { timeout: 150000, stdio: 'pipe', windowsHide: true })
+    execFileSync(process.execPath, [scriptFile], { timeout: 150000, stdio: 'pipe', windowsHide: true })
     if (existsSync(tmpFile)) {
       const buf = readFileSync(tmpFile)
       mkdirSync(dirname(cacheFile), { recursive: true })
@@ -81,6 +64,33 @@ function syncTencentDoc(docUrl: string, cacheDir: string): Buffer | null {
     return staleCache
   }
   return null
+}
+
+function isTencentDocUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' &&
+      url.hostname === 'docs.qq.com' &&
+      url.port === '' &&
+      url.username === '' &&
+      url.password === '' &&
+      /^\/sheet\/[A-Za-z0-9]+$/.test(url.pathname)
+  } catch {
+    return false
+  }
+}
+
+function validateWorkbook(workbook: XLSX.WorkBook): void {
+  if (workbook.SheetNames.length > MAX_SHEETS) throw new Error(`工作表数量超过限制（${MAX_SHEETS}）`)
+  for (const name of workbook.SheetNames) {
+    const ref = workbook.Sheets[name]?.['!ref']
+    if (!ref) continue
+    const range = XLSX.utils.decode_range(ref)
+    const rows = range.e.r - range.s.r + 1
+    const columns = range.e.c - range.s.c + 1
+    if (rows > MAX_ROWS) throw new Error(`工作表「${name}」行数超过限制（${MAX_ROWS}）`)
+    if (columns > MAX_COLUMNS) throw new Error(`工作表「${name}」列数超过限制（${MAX_COLUMNS}）`)
+  }
 }
 
 function sheetToHtml(sheet: XLSX.WorkSheet, keyCols: string[], hideCols: string[], contactCols: string[], avatarCol: string | null, descCol: string | null, tagCols: string[], nameCol: string | null): string {
@@ -284,20 +294,27 @@ export function xlsxTablePlugin(md: any, baseDir: string) {
     try {
       let wb: XLSX.WorkBook
       if (isUrl) {
-        if (spec.includes('docs.qq.com/sheet/')) {
+        if (isTencentDocUrl(spec)) {
           const buf = syncTencentDoc(spec, httpCacheDir)
           if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 腾讯文档同步失败，请确保后端服务已启动：<br><code>cd code && npm start</code></p>`
-          wb = XLSX.read(buf, { type: 'buffer' })
+          wb = XLSX.read(buf, { type: 'buffer', sheetRows: MAX_ROWS + 1 })
         } else {
-          const buf = syncDownloadFile(spec)
-          if (!buf || buf.length === 0) return `<p ${DANGER}>[xlsx] 下载失败：${esc(spec)}</p>`
-          wb = XLSX.read(buf, { type: 'buffer' })
+          return `<p ${DANGER}>[xlsx] 仅允许 https://docs.qq.com/sheet/ 链接</p>`
         }
       } else {
-        const filePath = resolve(baseDir, spec.replace(/^\//, ''))
+        const resourcesRoot = realpathSync(resolve(baseDir, 'resources'))
+        const requestedPath = resolve(baseDir, spec.replace(/^\//, ''))
+        if (!existsSync(requestedPath)) return `<p ${DANGER}>[xlsx] 文件不存在：${esc(spec)}</p>`
+        const filePath = realpathSync(requestedPath)
+        const resourcePath = relative(resourcesRoot, filePath)
+        if (resourcePath.startsWith('..') || isAbsolute(resourcePath)) {
+          return `<p ${DANGER}>[xlsx] 本地文件必须位于 docs/resources 目录</p>`
+        }
         if (!existsSync(filePath)) return `<p ${DANGER}>[xlsx] 文件不存在：${esc(spec)}</p>`
-        wb = XLSX.readFile(filePath)
+        if (statSync(filePath).size > MAX_XLSX_BYTES) return `<p ${DANGER}>[xlsx] 文件超过 ${MAX_XLSX_BYTES} 字节限制</p>`
+        wb = XLSX.readFile(filePath, { sheetRows: MAX_ROWS + 1 })
       }
+      validateWorkbook(wb)
       const names = wb.SheetNames
 
       if (targetSheet) {

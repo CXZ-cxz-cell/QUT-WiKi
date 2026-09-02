@@ -54,8 +54,8 @@ function hue(name) {
     <div class="contributors-row">
       <div class="contributors-list">
         <a
-          v-for="c in contributors"
-          :key="c.email"
+          v-for="(c, index) in contributors"
+          :key="c.github || `${c.name}-${index}`"
           class="contributor-item"
           :href="c.github ? `https://github.com/${c.github}` : undefined"
           :target="c.github ? '_blank' : undefined"

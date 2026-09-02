@@ -2,7 +2,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('https://pic1.imgdb.cn/i/033w5xaoCbMcBtYjt7vDX0.webp');
+  background-image: url('https://pic1.imgdb.cn/i/0349E4NqLje1oLHNowvJ4R.png');
   background-repeat: no-repeat;
   background-position: right 10% center;
   background-size: clamp(260px, 30vw, 450px);

@@ -19,7 +19,7 @@ top: 4
 ```
 ````
 
-> 链接和参数之间用**空格**分隔。旧写法 `?` 分隔仍然兼容，但外部链接推荐使用空格以避免与 URL 自身的查询参数冲突。
+> 路径和参数之间用**空格**分隔。旧写法 `?` 分隔仍然兼容；腾讯文档 URL 自身带查询参数时应使用空格分隔插件参数。
 
 ### 参数说明
 
@@ -58,16 +58,12 @@ top: 4
 - **contact** 列：按换行 `↵` 分割，多值用竖线 `|` 分隔
 - **avatar** 列：URL 直接使用，纯数字自动拼接为 `https://p.qlogo.cn/gh/{数字}/{数字}/0/`
 
-### 远程文件
+### 文件来源与限制
 
-fence 路径支持远程 `.xlsx` 文件的直链 URL，构建时自动下载后解析：
-
-````markdown
-```xlsx https://example.com/data.xlsx key=名称&avatar=头像
-```
-````
-
-> **推荐使用空格**分隔 URL 和参数，避免与远程 URL 自身的查询参数（如 `?usp=sharing`）冲突。
+- 本地 XLSX 必须位于 `docs/resources/`，不能使用目录穿越、绝对路径或仓库外文件
+- 远程来源仅允许规范的 `https://docs.qq.com/sheet/` 分享链接，不支持任意 HTTP(S) XLSX 直链
+- 单个 XLSX 最大 20 MiB，最多 20 张工作表
+- 单张工作表最多 5000 行、100 列；超限时构建会显示错误信息
 
 ### 腾讯文档
 
@@ -77,18 +73,20 @@ fence 路径支持远程 `.xlsx` 文件的直链 URL，构建时自动下载后�
 markdown 在线链接 → 插件 → 后端 API → Chromium 同步 → 回传 xlsx → 本地缓存
 ```
 
-**启动后端**（在服务器上）：
+**本地启动后端**：
 
 ```bash
 cd code
-npm install
+npm ci --ignore-scripts
 npm start
 # 默认监听 http://localhost:3456
 ```
 
-`npm install` 会一并准备 Chromium 及 Linux 运行依赖。启动后，markdown 中直接填写腾讯文档分享链接即可，构建时自动同步到本地 `docs/.http_cache/`，后续构建优先读缓存。
+Linux 生产环境应使用 `code/Dockerfile` 构建镜像，由镜像构建阶段准备 Chromium 系统依赖；不要在服务启动时执行 `npm install` 或 `apt-get`。启动后，Markdown 中直接填写腾讯文档分享链接即可，构建时自动同步到本地 `docs/.http_cache/`，后续构建优先读缓存。
 
 环境变量 `QUTWIKI_XLSX_API` 可指定后端地址，用于服务器部署场景。
+
+同步 API 不支持 `force` 参数。服务端会执行请求限流、全局 Chromium 并发控制以及工作表和输出大小限制。
 
 ---
 
@@ -150,7 +148,7 @@ npm start
 | `text` | string | 卡片名称 |
 | `icon` | string | 图标 URL（`http`/`https` 开头渲染为图片），固定尺寸圆角展示在卡片左侧 |
 | `desc` | string | 描述文字，显示在名称下方，灰色小字 |
-| `link` | string | 链接地址，填写后整张卡片变为可点击链接，外部链接自动新窗口打开；不填则渲染为普通卡片 |
+| `link` | string | 仅允许 `http`、`https` 或站内相对链接；外部链接自动新窗口打开，不填或协议不安全时渲染为普通卡片 |
 
 ### 示例
 
@@ -194,7 +192,7 @@ npm start
 | 参数 | 必填 | 说明 |
 |------|------|------|
 | `name` | ✅ | 站点名称 |
-| `link` | ✅ | 站点链接（建议 https），外部链接自动新窗口打开 |
+| `link` | ✅ | 站点链接，仅允许 `http`、`https` 或站内相对链接，外部链接自动新窗口打开 |
 | `avatar` | ❌ | 头像图片链接，圆形展示 |
 | `descr` | ❌ | 站点描述（也兼容 `desc`），最多两行 |
 | `siteshot` | ❌ | 友链卡片背景图链接，按 16:9 比例裁剪展示 |
@@ -243,7 +241,7 @@ contributors:
 |------|------|------|------|
 | `name` | string | 是 | 展示名称，也会用于匹配 `contributors-mapping.json` |
 | `github` | string | 否 | GitHub 用户名，可写 `lisi` 或 `@lisi` |
-| `email` | string | 否 | Git 邮箱，也会用于匹配 `contributors-mapping.json` |
+| `email` | string | 否 | 仅在构建阶段用于匹配 `contributors-mapping.json`，不会写入公开前端数据 |
 | `avatar` | string | 否 | 自定义头像地址，优先级高于 GitHub 头像 |
 
 简写 GitHub 用户名时也可以使用：
@@ -276,7 +274,7 @@ contributors:
 最终会展示为 `黎蛰`，链接到 GitHub 用户 `wodeshouji`，并使用映射中的头像。
 
 关联配置：
-- `docs/.vitepress/contributors-mapping.json`——手动映射邮箱到 GitHub 用户名
+- `docs/.vitepress/contributors-mapping.json`——在构建阶段按姓名、邮箱或 GitHub 用户名补全展示信息；邮箱不会进入公开产物
 
 ---
 
@@ -304,7 +302,9 @@ contributors:
 项目根目录的 `build.ps1` 一键构建并启动开发服务器：
 
 ```powershell
-.\build.ps1
+./build.ps1
 ```
 
 流程：生成贡献者数据 → `npm run build` → 清理 5173 端口旧进程 → `npm run dev`
+
+`npm run build:fresh` 会忽略本地 `docs/.http_cache/` 的有效期并重新请求同步服务，但服务端仍按自身缓存和限流策略处理，不提供强制绕过缓存的参数。

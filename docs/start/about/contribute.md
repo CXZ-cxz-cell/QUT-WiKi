@@ -10,7 +10,7 @@ top: 1
 
 ## 一、准备环境
 
-- [Node.js](https://nodejs.org/) 18+，推荐 [nvm-windows](https://github.com/coreybutler/nvm-windows)
+- [Node.js](https://nodejs.org/) 22.17+，推荐 [nvm-windows](https://github.com/coreybutler/nvm-windows)
 - [Git](https://git-scm.com/)，配置用户名和邮箱
 - 推荐编辑器：[VS Code](https://code.visualstudio.com/)
 
@@ -30,7 +30,7 @@ git clone https://github.com/YOUR_USERNAME/QUT-WiKi.git
 cd QUT-WiKi
 
 # 添加源仓库为 upstream，后续用于同步官方分支
-git remote add upstream https://github.com/LucasAndrew0120/QUT-WiKi.git
+git remote add upstream https://github.com/QUT-Lib/QUT-WiKi.git
 git fetch upstream
 ```
 
@@ -61,10 +61,12 @@ npm run dev
 
 普通文档贡献请优先使用 `npm ci` 安装依赖，避免不同 npm 版本执行 `npm install` 时改动 `package-lock.json`。
 
+项目将 SheetJS 归档保存在 `vendor/`，安装时不会在线获取该依赖。不要自行替换归档；如确需升级，必须同步更新两个 vendor 副本、lockfile、来源说明和 SHA-256，并确认两份文件字节一致。
+
 如需本地构建，请使用 PowerShell 运行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1
+./build.ps1
 ```
 
 ---
@@ -91,6 +93,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 - 小写英文 + 短横线：`canteen-guide.md`
 - 必含一个 `# 标题`，或写 `title: 标题` 在 frontmatter 中
 - 更多自定义功能（xlsx 表格、Gallery 画廊、贡献者显示等）见 [站点功能说明](./features)
+- XLSX 本地文件只能放在 `docs/resources/`；远程表格只接受 `https://docs.qq.com/sheet/` 分享链接
+- AppCards 和友情链接只填写 `http`、`https` 或站内相对链接，禁止 `javascript:`、`data:` 等协议
 
 ---
 
@@ -159,6 +163,7 @@ git push origin contribute
 - 每次贡献前先 `git fetch upstream`，确认自己的 `contribute` 分支基于最新的 `upstream/contribute`
 - 一 PR 一事，不混入无关修改
 - 引用资料注明出处，个人信息须经本人同意
+- 不要在图片说明、链接或表格中嵌入脚本、事件属性或不受信任的远程资源
 - 如果没有修改依赖，请不要提交 `package.json` 或 `package-lock.json` 的变化
-- 本地构建统一使用 PowerShell 执行 `powershell -ExecutionPolicy Bypass -File .\build.ps1`
+- 本地构建统一使用 PowerShell 执行 `./build.ps1`
 - 收到 review 后在同一分支继续修改并 push 即可

@@ -316,12 +316,13 @@ export default defineConfig({
         const token = tokens[idx]
         const alt = token.content || token.attrGet('alt') || ''
         let html = origImg(tokens, idx, options, env, self)
-        if (alt) html += `<span class="img-caption">${alt}</span>`
+        if (alt) html += `<span class="img-caption">${md.utils.escapeHtml(alt)}</span>`
         return html
       }
     },
   },
   head: [
+    ['link', { rel: 'icon', href: 'https://pic1.imgdb.cn/i/0349E4NqLje1oLHNowvJ4R.png' }],
     ['link', { rel: 'dns-prefetch', href: 'https://pic1.imgdb.cn' }],
     ['link', { rel: 'preconnect', href: 'https://pic1.imgdb.cn', crossorigin: '' }],
     ['script', { src: 'https://umami.lris625.top/script.js', 'data-website-id': '1f32faca-51d3-4c90-a8b0-581e3c649c92', defer: '' }],
@@ -346,11 +347,11 @@ export default defineConfig({
       ]
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/LucasAndrew0120/QUT-WiKi' }
+      { icon: 'github', link: 'https://github.com/QUT-Lib/QUT-WiKi' }
     ],
     footer: {
       message: `基于 VitePress 构建  ·  全站共计 <span style="color:rgb(1,93,149)">${totalK}K</span> 字`,
-      copyright: 'Copyright © 2026 <a href="https://github.com/LucasAndrew0120/QUT-WiKi" style="color:inherit;">QUTWiKi</a><br>本站内容采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" style="color:inherit;">CC BY-NC-SA 4.0</a> 声明'
+      copyright: 'Copyright © 2026 <a href="https://github.com/QUT-Lib/QUT-WiKi" style="color:inherit;">QUTWiKi</a><br>本站内容采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" style="color:inherit;">CC BY-NC-SA 4.0</a> 声明'
     },
     outline: { level: [2, 3], label: '本页导航' },
     sidebarMenuLabel: '本站目录',
