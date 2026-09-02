@@ -59,6 +59,13 @@ const contributorMeta = [
     links: [
       { text: 'GitHub', url: 'https://github.com/Chen-qwq' },
     ],
+  },
+  {
+    name: 'Link-Blue',
+    tags: [],
+    links: [
+      { text: 'GitHub', url: 'https://github.com/Link-Blue' },
+    ],
   }
 ]
 
